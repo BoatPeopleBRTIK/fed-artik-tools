@@ -103,8 +103,9 @@ append_command()
 check_create_user()
 {
 	REAL_USER=`who am i | awk '{print $1}'`
-#	grep $REAL_USER $1/etc/passwd || append_command "adduser $REAL_USER;"
-#	append_command "su $REAL_USER; cd /home/$REAL_USER"
+	[ "$REAL_USER" == "" ] && REAL_USER=`env | grep SUDO_USER | awk -F "=" '{ print $2 }'`
+	grep $REAL_USER $1/etc/passwd || append_command "adduser $REAL_USER;"
+	append_command "su $REAL_USER; cd /home/$REAL_USER;"
 	[ -d $1/home/$REAL_USER ] || mkdir -p $1/home/$REAL_USER
 	chroot_add_mount /home/$REAL_USER "$1/home/$REAL_USER" -o rbind
 }
@@ -131,6 +132,5 @@ chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
 chroot_add_resolv_conf "$chrootdir" || die "failed to setup resolv.conf"
 qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
 check_create_user "$chrootdir" || die "failed to setup user environment"
-#chroot "$chrootdir" /bin/env -i "http_proxy=$http_proxy" /bin/bash --login +h
-#chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS[@]}"
-chroot "$chrootdir"
+
+chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS[@]}"
