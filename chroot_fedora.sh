@@ -2,6 +2,9 @@
 
 set -x
 
+BIND_MOUNTS=(
+)
+
 usage() {
 	cat <<EOF
 	usage: ${0##*/} chroot-dir [options] [command]
@@ -110,6 +113,15 @@ check_create_user()
 	chroot_add_mount /home/$REAL_USER "$1/home/$REAL_USER" -o rbind
 }
 
+bind_mounts()
+{
+	for dir in ${BIND_MOUNTS[@]}
+	do
+		[ -d $1/$dir ] || mkdir -p $1/$dir
+		chroot_add_mount $dir "$1/$dir" -o rbind
+	done
+}
+
 package_check()
 {
 	command -v $1 >/dev/null 2>&1 || { echo >&2 "${1} not installed. Aborting."; exit 1; }
@@ -132,5 +144,6 @@ chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
 chroot_add_resolv_conf "$chrootdir" || die "failed to setup resolv.conf"
 qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
 check_create_user "$chrootdir" || die "failed to setup user environment"
+bind_mounts "$chrootdir"
 
 chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS[@]}"
