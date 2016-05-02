@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 BIND_MOUNTS=(
 )
 
