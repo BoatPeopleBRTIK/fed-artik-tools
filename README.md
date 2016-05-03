@@ -196,4 +196,5 @@ make install
 + Copy the qemu-arm file into fedora_root
 ```
 sudo cp qemu.install/bin/qemu-arm fedora_root/usr/bin/qemu-arm-static
+sudo chmod 755 fedora_root/usr/bin/qemu-arm-static
 ```
