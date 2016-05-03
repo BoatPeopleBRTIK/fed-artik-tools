@@ -59,7 +59,7 @@ sudo cp prebuilt/qemu-arm-static fedora_root/usr/bin/qemu-arm-static
 
 ### Chroot into fedora_root
 ```
-sudo ./chroot_fedora ./fedora_root
+sudo ./chroot_fedora.sh ./fedora_root
 Disable sslverify option of fedora
 cometzero@cometzero-ubuntu:/$
 ```
@@ -92,7 +92,7 @@ Password:  <- “root”
 qemu: Unsupported syscall: 311
 [root@cometzero-ubuntu /]#
 ```
-+ Install sudo package
++ Install sudo package(If your network does not allow https, please refer known issue.)
 ```
 dnf install sudo
 ```
@@ -117,7 +117,21 @@ sudo dnf install vim
 + Please download the source in Host environment
 ### qemu: Unsupported syscall: 311
 + Please ignore this message
-
+### If your network setting doesn?t allow https connection, you have to change repository from https to http
++ Run below command inside chroot
+```
+sed -i 's/metalink/#metalink/g' /etc/yum.repos.d/fedora*
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/rpmfusion*
+sed -i 's/#baseurl/baseurl/g' /etc/yum.repos.d/*
+```
+### 'dnf install' was stopped or hang
++ Please wait 2 or 3 minutes to update rpmdb.
+```
+dnf install sudo
+RPM Fusion for Fedora 22 - Free - Updates                       258 kB/s | 166 kB     00:00
+Fedora 22 - armhfp                                               15 MB/s |  37 MB     00:02
+Fedora 22 - armhfp - Updates                                    7.7 MB/s |  20 MB     00:02
+```
 ---
 ## 5. Appendix
 ### 5.1 Set up distcc to accelerate build
