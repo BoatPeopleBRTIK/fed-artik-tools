@@ -94,19 +94,19 @@ chroot_add_resolv_conf() {
 	chroot_add_mount /etc/resolv.conf "$resolv_conf" --bind
 }
 
-EXECUTE_COMMANDS=()
+EXECUTE_COMMANDS=""
 
 append_command()
 {
-	EXECUTE_COMMANDS=("${EXECUTE_COMMANDS[@]}" "$1")
+	EXECUTE_COMMANDS+="${1};"
 }
 
 check_create_user()
 {
 	REAL_USER=`who am i | awk '{print $1}'`
 	[ "$REAL_USER" == "" ] && REAL_USER=`env | grep SUDO_USER | awk -F "=" '{ print $2 }'`
-	grep -q $REAL_USER $1/etc/passwd || append_command "adduser $REAL_USER;"
-	append_command "su $REAL_USER; cd /home/$REAL_USER;"
+	grep -q $REAL_USER $1/etc/passwd || append_command "adduser $REAL_USER"
+	append_command "su $REAL_USER; cd /home/$REAL_USER"
 	[ -d $1/home/$REAL_USER ] || mkdir -p $1/home/$REAL_USER
 	chroot_add_mount /home/$REAL_USER "$1/home/$REAL_USER" -o rbind
 }
@@ -144,4 +144,4 @@ qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
 check_create_user "$chrootdir" || die "failed to setup user environment"
 bind_mounts "$chrootdir"
 
-chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS[@]}"
+chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS}"
