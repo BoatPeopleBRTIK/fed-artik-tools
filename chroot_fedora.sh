@@ -104,7 +104,7 @@ append_command()
 check_create_user()
 {
 	REAL_USER=`who am i | awk '{print $1}'`
-	[ "$REAL_USER" == "" ] && REAL_USER=`env | grep -q SUDO_USER | awk -F "=" '{ print $2 }'`
+	[ "$REAL_USER" == "" ] && REAL_USER=`env | grep SUDO_USER | awk -F "=" '{ print $2 }'`
 	grep -q $REAL_USER $1/etc/passwd || append_command "adduser $REAL_USER;"
 	append_command "su $REAL_USER; cd /home/$REAL_USER;"
 	[ -d $1/home/$REAL_USER ] || mkdir -p $1/home/$REAL_USER
