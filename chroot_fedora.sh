@@ -103,9 +103,11 @@ append_command()
 
 check_create_user()
 {
-	REAL_USER=`who am i | awk '{print $1}'`
-	[ "$REAL_USER" == "" ] && REAL_USER=`env | grep SUDO_USER | awk -F "=" '{ print $2 }'`
-	grep -q $REAL_USER $1/etc/passwd || append_command "adduser $REAL_USER"
+	REAL_USER=`env | grep SUDO_USER | awk -F "=" '{ print $2 }'`
+	if ! grep -q $REAL_USER $1/etc/passwd ; then
+		REAL_UID=`env | grep SUDO_UID | awk -F "=" '{ print $2 }'`
+		append_command "adduser -u $REAL_UID $REAL_USER"
+	fi
 	append_command "su $REAL_USER; cd /home/$REAL_USER"
 	[ -d $1/home/$REAL_USER ] || mkdir -p $1/home/$REAL_USER
 	chroot_add_mount /home/$REAL_USER "$1/home/$REAL_USER" -o rbind
