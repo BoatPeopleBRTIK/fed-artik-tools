@@ -1,5 +1,7 @@
 #!/bin/bash
 
+root_shell=
+
 BIND_MOUNTS=(
 )
 
@@ -108,7 +110,11 @@ check_create_user()
 		REAL_UID=`env | grep SUDO_UID | awk -F "=" '{ print $2 }'`
 		append_command "adduser -u $REAL_UID $REAL_USER"
 	fi
-	append_command "su $REAL_USER; cd /home/$REAL_USER"
+	if [ "$root_shell" == "root" ]; then
+		append_command "/bin/bash"
+	else
+		append_command "su $REAL_USER; cd /home/$REAL_USER"
+	fi
 	[ -d $1/home/$REAL_USER ] || mkdir -p $1/home/$REAL_USER
 	chroot_add_mount /home/$REAL_USER "$1/home/$REAL_USER" -o rbind
 }
@@ -137,6 +143,7 @@ fi
 (( EUID == 0 )) || die 'This script must be run with root privileges'
 chrootdir=$1
 shift
+root_shell=$1
 
 [[ -d $chrootdir ]] || die "Can't create chroot on non-directory %s" "$chrootdir"
 
@@ -146,4 +153,8 @@ qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
 check_create_user "$chrootdir" || die "failed to setup user environment"
 bind_mounts "$chrootdir"
 
-chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS}"
+if [ "$EXECUTE_COMMANDS" == "" ]; then
+	chroot "$chrootdir" /bin/bash
+else
+	chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS}"
+fi
