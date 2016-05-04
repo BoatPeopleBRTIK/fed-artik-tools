@@ -63,6 +63,11 @@ sudo ./chroot_fedora.sh ./fedora_root
 Disable sslverify option of fedora
 cometzero@cometzero-ubuntu:/$
 ```
+If you don't want to login user account automatically, please use below command:
+```
+sudo ./chroot_fedora.sh ./fedora_root root
+[root@cometzero-ubuntu /]#
+```
 The shell is able to log in by your Host's account and /home/{YOUR_ID} will be automatically connected to your chroot directory.
 You can also bind your directory inside of chroot
 
