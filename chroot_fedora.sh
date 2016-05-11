@@ -150,7 +150,9 @@ root_shell=$1
 chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
 chroot_add_resolv_conf "$chrootdir" || die "failed to setup resolv.conf"
 qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
-check_create_user "$chrootdir" || die "failed to setup user environment"
+if [ "$root_shell" != "root" ]; then
+	check_create_user "$chrootdir" || die "failed to setup user environment"
+fi
 bind_mounts "$chrootdir"
 
 if [ "$EXECUTE_COMMANDS" == "" ]; then
