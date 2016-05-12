@@ -1,19 +1,57 @@
 #!/bin/bash
 
-root_shell=
-
 BIND_MOUNTS=(
 )
+PRE_CHROOT_CMD=
+POST_CHROOT_CMD=
+USER=
+EXECUTE_COMMANDS=""
 
 usage() {
 	cat <<EOF
 	usage: ${0##*/} chroot-dir [options] [command]
 
-	-h             Print this help message
+	-h              Print this help message
+	-b [directory]	Specify bind mount directory
+	-s [script]	Specify host script before chroot
+	-r [script]	Specify host script after chroot
+	-u [user]	Login to user
 
 	If 'command' is unspecified, ${0##*/} will launch /bin/sh.
 
 EOF
+}
+
+append_command()
+{
+	EXECUTE_COMMANDS+="${1};"
+}
+
+insert_command()
+{
+	EXECUTE_COMMANDS="${@}; ${EXECUTE_COMMANDS}"
+}
+
+function parse_args()
+{
+	local opts=`getopt -o "hb:s:r:u:" -- "$@"`
+	eval set -- "$opts"
+
+	while true; do
+		case "$1" in
+			-h ) usage; exit 0 ;;
+			-b ) BIND_MOUNTS=("$2" "${BIND_MOUNTS[@]}"); shift 2 ;;
+			-s ) PRE_CHROOT_CMD=$2; shift 2 ;;
+			-r ) POST_CHROOT_CMD=$2; shift 2 ;;
+			-u ) USER=$2; shift 2;;
+			-- )
+				chrootdir=$2;
+				if [ "$3" != "" ]; then
+					append_command $3
+				fi
+				break
+		esac
+	done
 }
 
 chroot_add_mount() {
@@ -96,25 +134,17 @@ chroot_add_resolv_conf() {
 	chroot_add_mount /etc/resolv.conf "$resolv_conf" --bind
 }
 
-EXECUTE_COMMANDS=""
-
-append_command()
-{
-	EXECUTE_COMMANDS+="${1};"
-}
-
 check_create_user()
 {
+	local COMMANDS=
 	REAL_USER=`env | grep SUDO_USER | awk -F "=" '{ print $2 }'`
 	if ! grep -q $REAL_USER $1/etc/passwd ; then
 		REAL_UID=`env | grep SUDO_UID | awk -F "=" '{ print $2 }'`
-		append_command "adduser -u $REAL_UID $REAL_USER"
+		COMMANDS="adduser -u $REAL_UID $REAL_USER;"
 	fi
-	if [ "$root_shell" == "root" ]; then
-		append_command "/bin/bash"
-	else
-		append_command "su $REAL_USER; cd /home/$REAL_USER"
-	fi
+	COMMANDS="${COMMANDS} su $REAL_USER"
+	insert_command $COMMANDS
+
 	[ -d $1/home/$REAL_USER ] || mkdir -p $1/home/$REAL_USER
 	chroot_add_mount /home/$REAL_USER "$1/home/$REAL_USER" -o rbind
 }
@@ -133,30 +163,32 @@ package_check()
 	command -v $1 >/dev/null 2>&1 || { echo >&2 "${1} not installed. Aborting."; exit 1; }
 }
 
-package_check qemu-arm-static
-
-if [[ -z $1 || $1 = @(-h|--help) ]]; then
-	usage
-	exit $(( $# ? 0 : 1 ))
-fi
-
 (( EUID == 0 )) || die 'This script must be run with root privileges'
-chrootdir=$1
-shift
-root_shell=$1
+
+parse_args $@
+
+package_check qemu-arm-static
 
 [[ -d $chrootdir ]] || die "Can't create chroot on non-directory %s" "$chrootdir"
 
 chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
 chroot_add_resolv_conf "$chrootdir" || die "failed to setup resolv.conf"
 qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
-if [ "$root_shell" != "root" ]; then
-	check_create_user "$chrootdir" || die "failed to setup user environment"
+if [ "$USER" != "" ]; then
+	check_create_user "$chrootdir" "$USER" || die "failed to setup user environment"
 fi
 bind_mounts "$chrootdir"
+
+if [ "$PRE_CHROOT_CMD" != "" ]; then
+	/bin/bash -c $PRE_CHROOT_CMD
+fi
 
 if [ "$EXECUTE_COMMANDS" == "" ]; then
 	chroot "$chrootdir" /bin/bash
 else
 	chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS}"
+fi
+
+if [ "$POST_CHROOT_CMD" != "" ]; then
+	/bin/bash -c $POST_CHROOT_CMD
 fi
