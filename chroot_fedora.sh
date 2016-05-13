@@ -186,7 +186,7 @@ fi
 bind_mounts "$chrootdir"
 
 if [ "$PRE_CHROOT_CMD" != "" ]; then
-	/bin/bash -c $PRE_CHROOT_CMD
+	/bin/bash $PRE_CHROOT_CMD
 fi
 
 if [ "$EXECUTE_COMMANDS" == "" ]; then
@@ -196,5 +196,5 @@ else
 fi
 
 if [ "$POST_CHROOT_CMD" != "" ]; then
-	/bin/bash -c $POST_CHROOT_CMD
+	/bin/bash $POST_CHROOT_CMD
 fi
