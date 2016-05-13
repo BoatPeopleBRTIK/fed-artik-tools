@@ -7,6 +7,12 @@ POST_CHROOT_CMD=
 USER=
 EXECUTE_COMMANDS=""
 
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+msg2() { out "  ->" "$@";}
+die() { error "$@"; exit 1; }
+
 usage() {
 	cat <<EOF
 	usage: ${0##*/} chroot-dir [options] [command]
