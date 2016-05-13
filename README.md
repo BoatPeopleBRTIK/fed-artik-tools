@@ -61,32 +61,50 @@ sudo cp prebuilt/qemu-arm-static fedora_root/usr/bin/qemu-arm-static
 ```
 sudo ./chroot_fedora.sh ./fedora_root
 Disable sslverify option of fedora
-cometzero@cometzero-ubuntu:/$
+root@cometzero-ubuntu:/$
 ```
-If you don't want to login user account automatically, please use below command:
+If you want to login in a specific user account automatically, please use below command:
 ```
-sudo ./chroot_fedora.sh ./fedora_root root
-[root@cometzero-ubuntu /]#
+sudo ./chroot_fedora.sh ./fedora_root -u $USER
+[cometzero@cometzero-ubuntu /]#
 ```
 The shell is able to log in by your Host's account and /home/{YOUR_ID} will be automatically connected to your chroot directory.
 You can also bind your directory inside of chroot
 
 ### To exit from chroot
 ```
-cometzero@cometzero-ubuntu:/$ exit
+root@cometzero-ubuntu:/$ exit
 exit
 ```
 
 ### To add bind directories between Host PC and chroot
-+ Edit chroot_fedora.sh using editor
-Edit BIND_MOUNTS like below:
-```
-BIND_MOUNTS=(
-"/opt/test"
-"/data/test"
-)
-```
++ Use -b option to mount specific directory inside chroot environment
 + The directories will be automatically mounted inside chroot
+```
+sudo ./chroot_fedora.sh -b /opt/artik -b /opt/data rootfs
+```
+-> "/opt/artik" and "/opt/data" directory will be mounted in the chroot's "/opt/artik" and "/opt/data" directory
+
+### Pre-command before jumping to chroot environment
++ You can copy some files using this command before chroot
++ You can use -s option,
+```
+sudo ./chroot_fedora.sh -s copy.sh rootfs
+```
+Above command will run copy.sh before chroot
+### Post-command after exiting chroot
++ You can copy output files using this command after chroot
++ You can  use -r option,
+```
+sudo ./chroot_fedora.sh -r copy.sh rootfs
+```
+Above command will run copy.sh after chroot
+### Run a command instead of login
+You can run a command like below
+```
+sudo ./chroot_fedora.sh rootfs ls
+```
+Above command will run "ls" command instead of login
 
 ### Set up sudo environment
 To use "sudo" command, you'll need to install "sudo" package and configure your account.
@@ -174,17 +192,17 @@ sudo service distcc restart
 #### Fedora arm chroot
 + Install distcc and create symbolic links
 ```
-sudo dnf install distcc
+dnf install distcc
 cd /usr/local/bin
-sudo ln -sf /usr/bin/distcc gcc
-sudo ln -sf /usr/bin/distcc g++
-sudo ln -sf /usr/bin/distcc cc
-sudo ln -sf /usr/bin/distcc c++
-sudo ln -sf /usr/bin/distcc cpp
+ln -sf /usr/bin/distcc gcc
+ln -sf /usr/bin/distcc g++
+ln -sf /usr/bin/distcc cc
+ln -sf /usr/bin/distcc c++
+ln -sf /usr/bin/distcc cpp
 ```
 + Set up distcc host IP
 ```
-sudo vi /etc/distcc/hosts
+vi /etc/distcc/hosts
 127.0.0.1
 ```
 
