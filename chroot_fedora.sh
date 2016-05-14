@@ -71,12 +71,14 @@ chroot_maybe_add_mount() {
 	fi
 }
 
-qemu_arm_setup() {
-	[ -e $1/usr/bin/qemu-arm-static ] || cp /usr/bin/qemu-arm-static $1/usr/bin
-	[ -e cpuinfo.lie ] || cat > cpuinfo.lie << __EOF__
-processor   : 0
+gen_cpuinfo() {
+	if [ ! -e cpuinfo.lie ]; then
+		for ((i = 0; i < `grep -c ^processor /proc/cpuinfo`; i++))
+		do
+			cat >> cpuinfo.lie << __EOF__
+processor   : ${i}
 model name  : ARMv7 Processor rev 1 (v7l)
-BogoMIPS    : 125.00
+BogoMIPS    : 1250.00
 Features    : half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm
 CPU implementer : 0x41
 CPU architecture: 7
@@ -86,7 +88,21 @@ CPU revision    : 1
 Hardware    : ARM-Versatile Express
 Revision    : 0000
 Serial      : 0000000000000000
+
 __EOF__
+		done
+	fi
+}
+
+qemu_arm_setup() {
+	[ -e $1/usr/bin/qemu-arm-static ] || cp /usr/bin/qemu-arm-static $1/usr/bin
+	if [ ! -e cpuinfo.lie ]; then
+		gen_cpuinfo
+	fi
+	if [ `grep -c ^processor /proc/cpuinfo` != `grep -c ^processor cpuinfo.lie` ]; then
+		rm cpuinfo.lie
+		gen_cpuinfo
+	fi
 	chroot_add_mount cpuinfo.lie "$1/proc/cpuinfo" -o rbind
 
 	echo "Disable sslverify option of fedora"
