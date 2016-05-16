@@ -7,9 +7,16 @@ BUILDROOT=
 EXECUTE_COMMANDS=""
 ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core distcc"
 USE_DISTCC=false
+IMPORT_ROOTFS=
 
 SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
 if [ $SUDO_USER ]; then user=$SUDO_USER; else user=`whoami`; fi
+
+out() { printf "$1 $2\n" "${@:3}"; }
+error() { out "==> ERROR:" "$@"; } >&2
+msg() { out "==>" "$@"; }
+msg2() { out "  ->" "$@";}
+die() { error "$@"; exit 1; }
 
 usage() {
 	cat <<EOF
@@ -21,6 +28,7 @@ usage() {
 	-f Fedora_Ver	Fedora version(Default: f22)
 	--official-repo	Use official repository instead of meta repository
 	--distcc	Use distcc to accelerate build
+	-I ROOTFS	Import fedora rootfs
 EOF
 	exit 0
 }
@@ -35,7 +43,6 @@ parse_options()
 				shift ;;
 			-B|--buildroot)
 				BUILDROOT=`readlink -e "$2"`
-				[ ! -d $BUILDROOT ] && die "cannot find buildroot"
 				shift ;;
 			-A|--arch)
 				BUILDARCH="$2"
@@ -45,6 +52,9 @@ parse_options()
 				shift ;;
 			--official-repo)
 				USE_OFFICIAL_REPO=true
+				shift ;;
+			-I)
+				IMPORT_ROOTFS="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -87,6 +97,13 @@ setup_distcc()
 }
 
 parse_options "$@"
+
+[ ! -d $BUILDROOT ] && die "cannot find buildroot"
+
+if [ "$IMPORT_ROOTFS" != "" ]; then
+	rm -rf $BUILDROOT/*
+	tar xf $IMPORT_ROOTFS -C $BUILDROOT
+fi
 
 if [ $USE_OFFICIAL_REPO ]; then
 	change_official_repo
