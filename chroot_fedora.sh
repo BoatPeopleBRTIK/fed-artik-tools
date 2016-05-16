@@ -6,6 +6,7 @@ PRE_CHROOT_CMD=
 POST_CHROOT_CMD=
 USER=
 EXECUTE_COMMANDS=""
+SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
 
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
@@ -73,10 +74,10 @@ chroot_maybe_add_mount() {
 }
 
 gen_cpuinfo() {
-	if [ ! -e cpuinfo.lie ]; then
+	if [ ! -e $SCRIPT_DIR/cpuinfo.lie ]; then
 		for ((i = 0; i < `grep -c ^processor /proc/cpuinfo`; i++))
 		do
-			cat >> cpuinfo.lie << __EOF__
+			cat >> $SCRIPT_DIR/cpuinfo.lie << __EOF__
 processor   : ${i}
 model name  : ARMv7 Processor rev 1 (v7l)
 BogoMIPS    : 1250.00
@@ -97,14 +98,14 @@ __EOF__
 
 qemu_arm_setup() {
 	[ -e $1/usr/bin/qemu-arm-static ] || cp /usr/bin/qemu-arm-static $1/usr/bin
-	if [ ! -e cpuinfo.lie ]; then
+	if [ ! -e $SCRIPT_DIR/cpuinfo.lie ]; then
 		gen_cpuinfo
 	fi
 	if [ `grep -c ^processor /proc/cpuinfo` != `grep -c ^processor cpuinfo.lie` ]; then
-		rm cpuinfo.lie
+		rm $SCRIPT_DIR/cpuinfo.lie
 		gen_cpuinfo
 	fi
-	chroot_add_mount cpuinfo.lie "$1/proc/cpuinfo" -o rbind
+	chroot_add_mount $SCRIPT_DIR/cpuinfo.lie "$1/proc/cpuinfo" -o rbind
 
 	echo "Disable sslverify option of fedora"
 	grep -q 'sslverify' $1/etc/dnf/dnf.conf || echo "sslverify=False" >> $1/etc/dnf/dnf.conf
