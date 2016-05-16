@@ -1,5 +1,6 @@
 #!/bin/bash
 
+BUILDCONFIG=~/.fed-artik-build.conf
 FEDORA_VER=f22
 BUILDARCH=armv7hl
 USE_OFFICIAL_REPO=false
@@ -57,10 +58,11 @@ parse_options()
 
 change_official_repo()
 {
-	sed -i 's/^metalink/#metalink/g' $BUILDROOT/etc/yum.repos.d/fedora*
-	[ -d $BUILDROOT/etc/yum.repos.d/rpmfusion* ] && \
-		sed -i 's/^mirrorlist/#mirrorlist/g' $BUILDROOT/etc/yum.repos.d/rpmfusion*
-	sed -i 's/^#baseurl/baseurl/g' $BUILDROOT/etc/yum.repos.d/*
+	local scratch_root=$1
+	sudo sed -i 's/^metalink/#metalink/g' $scratch_root/etc/yum.repos.d/fedora*
+	[ -d $scratch_root/etc/yum.repos.d/rpmfusion* ] && \
+		sudo sed -i 's/^mirrorlist/#mirrorlist/g' $scratch_root/etc/yum.repos.d/rpmfusion*
+	sudo sed -i 's/^#baseurl/baseurl/g' $scratch_root/etc/yum.repos.d/*
 }
 
 install_essential_packages()
@@ -79,21 +81,24 @@ setup_distcc()
 	append_command "echo 127.0.0.1 > /etc/distcc/hosts"
 }
 
+parse_config $BUILDCONFIG
 parse_options "$@"
 
-[ ! -d $BUILDROOT ] && die "cannot find buildroot"
+eval BUILDROOT=$BUILDROOT
+SCRATCH_ROOT=$BUILDROOT/BUILDROOT
+[ ! -d $SCRATCH_ROOT ] && die "cannot find buildroot"
 
 if [ "$IMPORT_ROOTFS" != "" ]; then
-	rm -rf $BUILDROOT/*
-	tar xf $IMPORT_ROOTFS -C $BUILDROOT
+	sudo rm -rf $SCRATCH_ROOT/*
+	sudo tar xf $IMPORT_ROOTFS -C $SCRATCH_ROOT
 fi
 
-if [ $USE_OFFICIAL_REPO ]; then
-	change_official_repo
+if [ "$USE_OFFICIAL_REPO" ]; then
+	change_official_repo $SCRATCH_ROOT
 fi
 
 install_essential_packages
 setup_initial_directory
 [ $USE_DISTCC ] && setup_distcc
 
-$SCRIPT_DIR/chroot_fedora.sh $BUILDROOT "$EXECUTE_COMMANDS"
+sudo $SCRIPT_DIR/chroot_fedora.sh $SCRATCH_ROOT "$EXECUTE_COMMANDS"
