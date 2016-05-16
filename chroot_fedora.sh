@@ -52,8 +52,9 @@ function parse_args()
 			-u ) USER=$2; shift 2;;
 			-- )
 				chrootdir=$2;
-				if [ "$3" != "" ]; then
-					append_command $3
+				shift 2
+				if [ "$1" != "" ]; then
+					append_command "$@"
 				fi
 				break
 		esac
@@ -187,7 +188,7 @@ package_check()
 
 (( EUID == 0 )) || die 'This script must be run with root privileges'
 
-parse_args $@
+parse_args "$@"
 
 package_check qemu-arm-static
 
