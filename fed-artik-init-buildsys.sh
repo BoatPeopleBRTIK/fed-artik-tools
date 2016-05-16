@@ -9,14 +9,7 @@ ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-c
 USE_DISTCC=false
 IMPORT_ROOTFS=
 
-SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
-if [ $SUDO_USER ]; then user=$SUDO_USER; else user=`whoami`; fi
-
-out() { printf "$1 $2\n" "${@:3}"; }
-error() { out "==> ERROR:" "$@"; } >&2
-msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
-die() { error "$@"; exit 1; }
+. fed-artik-common.sh
 
 usage() {
 	cat <<EOF
@@ -68,16 +61,6 @@ change_official_repo()
 	[ -d $BUILDROOT/etc/yum.repos.d/rpmfusion* ] && \
 		sed -i 's/^mirrorlist/#mirrorlist/g' $BUILDROOT/etc/yum.repos.d/rpmfusion*
 	sed -i 's/^#baseurl/baseurl/g' $BUILDROOT/etc/yum.repos.d/*
-}
-
-append_command()
-{
-	EXECUTE_COMMANDS+="${1};"
-}
-
-insert_command()
-{
-	EXECUTE_COMMANDS="${@}; ${EXECUTE_COMMANDS}"
 }
 
 install_essential_packages()

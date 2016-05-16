@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 BUILDROOT=
 BUILDARCH=armv7hl
 INCLUDE_ALL=
@@ -12,18 +10,11 @@ SRC_DIR=/root/rpmbuild/SOURCES
 SPEC_DIR=/root/rpmbuild/SPECS
 RPM_DIR=/root/rpmbuild/RPMS
 
-SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
-if [ $SUDO_USER ]; then user=$SUDO_USER; else user=`whoami`; fi
-
 pkg_src_type=
 pkg_name=
 pkg_version=
 
-out() { printf "$1 $2\n" "${@:3}"; }
-error() { out "==> ERROR:" "$@"; } >&2
-msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
-die() { error "$@"; exit 1; }
+. fed-artik-common.sh
 
 usage() {
 	cat <<EOF

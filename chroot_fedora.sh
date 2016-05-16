@@ -6,13 +6,8 @@ PRE_CHROOT_CMD=
 POST_CHROOT_CMD=
 USER=
 EXECUTE_COMMANDS=""
-SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
 
-out() { printf "$1 $2\n" "${@:3}"; }
-error() { out "==> ERROR:" "$@"; } >&2
-msg() { out "==>" "$@"; }
-msg2() { out "  ->" "$@";}
-die() { error "$@"; exit 1; }
+. fed-artik-common.sh
 
 usage() {
 	cat <<EOF
@@ -27,16 +22,6 @@ usage() {
 	If 'command' is unspecified, ${0##*/} will launch /bin/sh.
 
 EOF
-}
-
-append_command()
-{
-	EXECUTE_COMMANDS+="${1};"
-}
-
-insert_command()
-{
-	EXECUTE_COMMANDS="${@}; ${EXECUTE_COMMANDS}"
 }
 
 function parse_args()
