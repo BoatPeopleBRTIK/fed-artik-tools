@@ -5,7 +5,8 @@ BUILDARCH=armv7hl
 USE_OFFICIAL_REPO=false
 BUILDROOT=
 EXECUTE_COMMANDS=""
-ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core"
+ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core distcc"
+USE_DISTCC=false
 
 SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
 if [ $SUDO_USER ]; then user=$SUDO_USER; else user=`whoami`; fi
@@ -19,6 +20,7 @@ usage() {
 	-A ARCH		Build Architecture. armv7hl
 	-f Fedora_Ver	Fedora version(Default: f22)
 	--official-repo	Use official repository instead of meta repository
+	--distcc	Use distcc to accelerate build
 EOF
 	exit 0
 }
@@ -32,7 +34,8 @@ parse_options()
 				usage
 				shift ;;
 			-B|--buildroot)
-				BUILDROOT="$2"
+				BUILDROOT=`readlink -e "$2"`
+				[ ! -d $BUILDROOT ] && die "cannot find buildroot"
 				shift ;;
 			-A|--arch)
 				BUILDARCH="$2"
@@ -51,7 +54,10 @@ parse_options()
 
 change_official_repo()
 {
-	return
+	sed -i 's/^metalink/#metalink/g' $BUILDROOT/etc/yum.repos.d/fedora*
+	[ -d $BUILDROOT/etc/yum.repos.d/rpmfusion* ] && \
+		sed -i 's/^mirrorlist/#mirrorlist/g' $BUILDROOT/etc/yum.repos.d/rpmfusion*
+	sed -i 's/^#baseurl/baseurl/g' $BUILDROOT/etc/yum.repos.d/*
 }
 
 append_command()
@@ -66,12 +72,18 @@ insert_command()
 
 install_essential_packages()
 {
-	append_command "dnf install $ESSENTIAL_PACKAGES;"
+	append_command "dnf install -q -y $ESSENTIAL_PACKAGES"
 }
 
 setup_initial_directory()
 {
 	append_command "rpmdev-setuptree"
+}
+
+setup_distcc()
+{
+	append_command "cd /usr/local/bin; for f in gcc g++ cc c++ armv7hl-redhat-linux-gnueabi-gcc; do ln -sf /usr/bin/distcc \$f; done"
+	append_command "echo 127.0.0.1 > /etc/distcc/hosts"
 }
 
 parse_options "$@"
@@ -82,5 +94,6 @@ fi
 
 install_essential_packages
 setup_initial_directory
+[ $USE_DISTCC ] && setup_distcc
 
-$SCRIPT_DIR/chroot_fedora.sh $BUILDROOT $EXECUTE_COMMANDS
+$SCRIPT_DIR/chroot_fedora.sh $BUILDROOT "$EXECUTE_COMMANDS"

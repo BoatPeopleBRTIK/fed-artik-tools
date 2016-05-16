@@ -8,11 +8,16 @@ INCLUDE_ALL=
 DEFINE=
 SPECFILE=
 
+SRC_DIR=/root/rpmbuild/SOURCES
+SPEC_DIR=/root/rpmbuild/SPECS
+RPM_DIR=/root/rpmbuild/RPMS
+
+SCRIPT_DIR=`dirname "$(readlink -f "$0")"`
 if [ $SUDO_USER ]; then user=$SUDO_USER; else user=`whoami`; fi
 
-let pkg_src_type=
-let pkg_name=
-let pkg_version=
+pkg_src_type=
+pkg_name=
+pkg_version=
 
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
@@ -45,7 +50,8 @@ parse_options()
 				usage
 				shift ;;
 			-B|--buildroot)
-				BUILDROOT="$2"
+				BUILDROOT=`readlink -e "$2"`
+				[ ! -d $BUILDROOT ] && die "cannot find buildroot"
 				shift ;;
 			-A|--arch)
 				BUILDARCH="$2"
@@ -94,17 +100,34 @@ parse_pkg_info()
 
 archive_git_source()
 {
+	local src_dir=$1
 	if [ $INCLUDE_ALL ]; then
 		uploadStash=`git stash create`
 		git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
-			-o $pkg_name-$pkg_version.$pkg_src_type ${uploadStash:-HEAD}
+			-o $src_dir/$pkg_name-$pkg_version.$pkg_src_type ${uploadStash:-HEAD}
 
 	else
 		git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
-			-o $pkg_name-$pkg_version.$pkg_src_type HEAD
+			-o $src_dir/$pkg_name-$pkg_version.$pkg_src_type HEAD
 	fi
+}
+
+run_rpmbuild()
+{
+	local spec_base=$(basename "$SPECFILE")
+	local build_cmd="dnf builddep -y -q $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
+	if [ "$DEFINE" != "" ]; then
+		build_cmd+=" --define \"$DEFINE\""
+	fi
+	build_cmd+=" $SPEC_DIR/$spec_base"
+
+	$SCRIPT_DIR/chroot_fedora.sh $BUILDROOT "$build_cmd"
 }
 
 parse_options "$@"
 parse_pkg_info
-archive_git_source
+archive_git_source $BUILDROOT/$SRC_DIR
+
+cp -f `readlink -e $SPECFILE` $BUILDROOT/$SPEC_DIR
+
+run_rpmbuild
