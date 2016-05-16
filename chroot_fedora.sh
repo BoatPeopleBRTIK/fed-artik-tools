@@ -209,6 +209,7 @@ fi
 if [ "$EXECUTE_COMMANDS" == "" ]; then
 	chroot "$chrootdir" /bin/bash
 else
+	EXECUTE_COMMANDS=${EXECUTE_COMMANDS/%;;/;}
 	chroot "$chrootdir" /bin/bash -c "${EXECUTE_COMMANDS}"
 fi
 
