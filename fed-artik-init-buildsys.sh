@@ -101,4 +101,5 @@ install_essential_packages
 setup_initial_directory
 [ $USE_DISTCC ] && setup_distcc
 
+echo "### You may need to wait long time(>5 minutes) to synchronize rpmdb"
 sudo $SCRIPT_DIR/chroot_fedora.sh $SCRATCH_ROOT "$EXECUTE_COMMANDS"
