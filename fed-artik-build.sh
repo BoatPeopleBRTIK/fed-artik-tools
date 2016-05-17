@@ -15,7 +15,7 @@ pkg_src_type=
 pkg_name=
 pkg_version=
 
-. fed-artik-common.sh
+. `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
 
 usage() {
 	cat <<EOF
@@ -95,11 +95,11 @@ archive_git_source()
 	local src_dir=$1
 	if [ $INCLUDE_ALL ]; then
 		uploadStash=`git stash create`
-		git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
+		sudo git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
 			-o $src_dir/$pkg_name-$pkg_version.$pkg_src_type ${uploadStash:-HEAD}
 
 	else
-		git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
+		sudo git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
 			-o $src_dir/$pkg_name-$pkg_version.$pkg_src_type HEAD
 	fi
 }
@@ -114,17 +114,18 @@ run_rpmbuild()
 	fi
 	build_cmd+=" $SPEC_DIR/$spec_base"
 
-	$SCRIPT_DIR/chroot_fedora.sh $scratch_root "$build_cmd"
+	sudo $SCRIPT_DIR/chroot_fedora.sh $scratch_root "$build_cmd"
 }
 
 parse_config $BUILDCONFIG
 parse_options "$@"
 
+eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 
 parse_pkg_info
 archive_git_source $SCRATCH_ROOT/$SRC_DIR
 
-cp -f `readlink -e $SPECFILE` $SCRATCH_ROOT/$SPEC_DIR
+sudo cp -f `readlink -e $SPECFILE` $SCRATCH_ROOT/$SPEC_DIR
 
-run_rpmbuild
+run_rpmbuild $SCRATCH_ROOT

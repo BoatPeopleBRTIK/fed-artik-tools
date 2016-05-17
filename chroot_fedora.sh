@@ -7,7 +7,7 @@ POST_CHROOT_CMD=
 USER=
 EXECUTE_COMMANDS=""
 
-. fed-artik-common.sh
+. `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
 
 usage() {
 	cat <<EOF
@@ -86,7 +86,7 @@ qemu_arm_setup() {
 	if [ ! -e $SCRIPT_DIR/cpuinfo.lie ]; then
 		gen_cpuinfo
 	fi
-	if [ `grep -c ^processor /proc/cpuinfo` != `grep -c ^processor cpuinfo.lie` ]; then
+	if [ `grep -c ^processor /proc/cpuinfo` != `grep -c ^processor $SCRIPT_DIR/cpuinfo.lie` ]; then
 		rm $SCRIPT_DIR/cpuinfo.lie
 		gen_cpuinfo
 	fi

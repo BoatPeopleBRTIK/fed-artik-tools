@@ -10,7 +10,7 @@ ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-c
 USE_DISTCC=false
 IMPORT_ROOTFS=
 
-. fed-artik-common.sh
+. `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
 
 usage() {
 	cat <<EOF

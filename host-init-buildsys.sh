@@ -2,7 +2,7 @@
 
 BUILDCONFIG=.fed-artik-build.conf
 
-. fed-artik-common.sh
+. `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
 
 usage() {
 	cat <<EOF
