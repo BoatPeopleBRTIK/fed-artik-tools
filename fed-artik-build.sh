@@ -1,5 +1,6 @@
 #!/bin/bash
 
+BUILDCONFIG=~/.fed-artik-build.conf
 BUILDROOT=
 BUILDARCH=armv7hl
 INCLUDE_ALL=
@@ -105,6 +106,7 @@ archive_git_source()
 
 run_rpmbuild()
 {
+	local scratch_root=$1
 	local spec_base=$(basename "$SPECFILE")
 	local build_cmd="dnf builddep -y -q $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
 	if [ "$DEFINE" != "" ]; then
@@ -112,13 +114,17 @@ run_rpmbuild()
 	fi
 	build_cmd+=" $SPEC_DIR/$spec_base"
 
-	$SCRIPT_DIR/chroot_fedora.sh $BUILDROOT "$build_cmd"
+	$SCRIPT_DIR/chroot_fedora.sh $scratch_root "$build_cmd"
 }
 
+parse_config $BUILDCONFIG
 parse_options "$@"
-parse_pkg_info
-archive_git_source $BUILDROOT/$SRC_DIR
 
-cp -f `readlink -e $SPECFILE` $BUILDROOT/$SPEC_DIR
+SCRATCH_ROOT=$BUILDROOT/BUILDROOT
+
+parse_pkg_info
+archive_git_source $SCRATCH_ROOT/$SRC_DIR
+
+cp -f `readlink -e $SPECFILE` $SCRATCH_ROOT/$SPEC_DIR
 
 run_rpmbuild
