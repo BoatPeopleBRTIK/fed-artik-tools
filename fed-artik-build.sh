@@ -104,28 +104,61 @@ archive_git_source()
 	fi
 }
 
+setup_local_repo()
+{
+	local scratch_root=$1
+	local local_repo=$2
+
+	mkdir -p $local_repo
+
+	createrepo $local_repo
+
+	sudo sh -c "cat > $scratch_root/etc/yum.repos.d/local.repo << __EOF__
+[local]
+name=Fedora-Local
+baseurl=file://${local_repo}
+enabled=1
+gpgcheck=0
+__EOF__"
+}
+
 run_rpmbuild()
 {
 	local scratch_root=$1
+	local local_repo=$2
 	local spec_base=$(basename "$SPECFILE")
-	local build_cmd="dnf builddep -y -q $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
+	local build_cmd="dnf builddep -y -v $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
 	if [ "$DEFINE" != "" ]; then
 		build_cmd+=" --define \"$DEFINE\""
 	fi
 	build_cmd+=" $SPEC_DIR/$spec_base"
 
-	sudo $SCRIPT_DIR/chroot_fedora.sh $scratch_root "$build_cmd"
+	sudo $SCRIPT_DIR/chroot_fedora.sh -b $local_repo $scratch_root "$build_cmd"
 }
 
+copy_output_rpms()
+{
+	local scratch_root=$1
+	local local_repo=$2
+	local build_arch=$3
+
+	sudo sh -c "cp -f $scratch_root/$RPM_DIR/$build_arch/*.rpm $local_repo/RPMS"
+	sudo sh -c "chown $user:$user $local_repo/RPMS/*"
+}
+
+eval BUILDROOT=$BUILDROOT
 parse_config $BUILDCONFIG
 parse_options "$@"
 
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
+LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH
 
 parse_pkg_info
 archive_git_source $SCRATCH_ROOT/$SRC_DIR
 
 sudo cp -f `readlink -e $SPECFILE` $SCRATCH_ROOT/$SPEC_DIR
 
-run_rpmbuild $SCRATCH_ROOT
+setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
+run_rpmbuild $SCRATCH_ROOT $LOCAL_REPO
+copy_output_rpms $SCRATCH_ROOT $LOCAL_REPO $BUILDARCH
