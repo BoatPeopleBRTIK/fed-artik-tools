@@ -93,7 +93,7 @@ if [ "$IMPORT_ROOTFS" != "" ]; then
 	sudo tar xf $IMPORT_ROOTFS -C $SCRATCH_ROOT
 fi
 
-if [ "$USE_OFFICIAL_REPO" ]; then
+if [ "$USE_OFFICIAL_REPO" == "1" ]; then
 	change_official_repo $SCRATCH_ROOT
 fi
 
