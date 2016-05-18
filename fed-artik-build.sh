@@ -142,8 +142,8 @@ copy_output_rpms()
 	local local_repo=$2
 	local build_arch=$3
 
-	sudo sh -c "cp -f $scratch_root/$RPM_DIR/$build_arch/*.rpm $local_repo/RPMS"
-	sudo sh -c "chown $user:$user $local_repo/RPMS/*"
+	sudo sh -c "cp -f $scratch_root/$RPM_DIR/$build_arch/*.rpm $local_repo"
+	sudo sh -c "chown $user:$user $local_repo/*"
 }
 
 eval BUILDROOT=$BUILDROOT
@@ -152,7 +152,7 @@ parse_options "$@"
 
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
-LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH
+LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
 
 parse_pkg_info
 archive_git_source $SCRATCH_ROOT/$SRC_DIR
