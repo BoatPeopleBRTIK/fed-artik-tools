@@ -119,8 +119,6 @@ setup_local_repo()
 
 	mkdir -p $local_repo
 
-	createrepo $local_repo
-
 	sudo sh -c "cat > $scratch_root/etc/yum.repos.d/local.repo << __EOF__
 [local]
 name=Fedora-Local
@@ -135,7 +133,7 @@ run_rpmbuild()
 	local scratch_root=$1
 	local local_repo=$2
 	local spec_base=$(basename "$SPECFILE")
-	local build_cmd="rm -rf /var/cache/local*; dnf makecache; dnf builddep -y -v $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
+	local build_cmd="rm -rf /var/cache/local*; createrepo $local_repo; dnf makecache; dnf builddep -y -v $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
 	if [ "$DEFINE" != "" ]; then
 		build_cmd+=" --define \"$DEFINE\""
 	fi

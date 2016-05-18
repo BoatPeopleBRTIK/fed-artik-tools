@@ -6,7 +6,7 @@ BUILDARCH=armv7hl
 USE_OFFICIAL_REPO=false
 BUILDROOT=
 EXECUTE_COMMANDS=""
-ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core distcc"
+ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core distcc createrepo"
 USE_DISTCC=false
 IMPORT_ROOTFS=
 
