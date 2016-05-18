@@ -181,3 +181,5 @@ sudo cp -f `readlink -e $SPECFILE` $SCRATCH_ROOT/$SPEC_DIR
 setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 run_rpmbuild $SCRATCH_ROOT $LOCAL_REPO
 copy_output_rpms $SCRATCH_ROOT $LOCAL_REPO $BUILDARCH
+
+echo "Build is done. Please find your rpm from " $LOCAL_REPO

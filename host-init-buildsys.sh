@@ -74,3 +74,7 @@ if [ "$IMPORT_ROOTFS" != "" ]; then
 	sudo tar xf $IMPORT_ROOTFS -C $SCRATCH_ROOT
 fi
 
+echo "Host setting is done"
+echo "BUILDROOT -> " $BUILDROOT
+echo "SCRATCH_ROOT -> " $SCRATCH_ROOT
+echo "Local Repo -> " $BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS

@@ -102,3 +102,5 @@ setup_initial_directory
 
 echo "### You may need to wait long time(>5 minutes) to synchronize rpmdb"
 sudo $SCRIPT_DIR/chroot_fedora.sh $SCRATCH_ROOT "$EXECUTE_COMMANDS"
+
+echo "### fedora artik build system has been created"
