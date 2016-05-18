@@ -62,6 +62,18 @@ change_official_repo()
 	sudo sed -i 's/^metalink/#metalink/g' $scratch_root/etc/yum.repos.d/fedora*
 	sudo sed -i 's/^mirrorlist/#mirrorlist/g' $scratch_root/etc/yum.repos.d/rpmfusion*
 	sudo sed -i 's/^#baseurl/baseurl/g' $scratch_root/etc/yum.repos.d/*
+
+	sudo sed -i 's/metadata_expire=6h/metadata_expire=7d/g' $scratch_root/etc/yum.repos.d/fedora-updates.repo
+}
+
+change_readlink_repo()
+{
+	local scratch_root=$1
+	sudo sed -i 's/^#metalink/metalink/g' $scratch_root/etc/yum.repos.d/fedora*
+	sudo sed -i 's/^#mirrorlist/mirrorlist/g' $scratch_root/etc/yum.repos.d/rpmfusion*
+	sudo sed -i 's/^baseurl/#baseurl/g' $scratch_root/etc/yum.repos.d/*
+
+	sudo sed -i 's/metadata_expire=6h/metadata_expire=7d/g' $scratch_root/etc/yum.repos.d/fedora-updates.repo
 }
 
 install_essential_packages()
@@ -94,6 +106,8 @@ fi
 
 if [ "$USE_OFFICIAL_REPO" == "1" ]; then
 	change_official_repo $SCRATCH_ROOT
+else
+	change_metalink_repo $SCRATCH_ROOT
 fi
 
 install_essential_packages
