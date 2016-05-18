@@ -127,7 +127,7 @@ run_rpmbuild()
 	local scratch_root=$1
 	local local_repo=$2
 	local spec_base=$(basename "$SPECFILE")
-	local build_cmd="dnf builddep -y -v $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
+	local build_cmd="rm -rf /var/cache/local*; dnf makecache; dnf builddep -y -v $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
 	if [ "$DEFINE" != "" ]; then
 		build_cmd+=" --define \"$DEFINE\""
 	fi
@@ -146,7 +146,14 @@ copy_output_rpms()
 	sudo sh -c "chown $user:$user $local_repo/*"
 }
 
+detect_spec_file()
+{
+	SPECFILE=`find ./packaging -name "*.spec"`
+	[ ! -e $SPECFILE ] && die "not found spec file"
+}
+
 eval BUILDROOT=$BUILDROOT
+detect_spec_file
 parse_config $BUILDCONFIG
 parse_options "$@"
 
