@@ -50,6 +50,16 @@ make_initial_directories()
 	mkdir -p $root_dir/repos/$repo_name/$repo_arch/{RPMS,SRPMS}
 }
 
+if [ ! -e $BUILDCONFIG ]; then
+	cat > $BUILDCONFIG << __EOF__
+BUILDROOT=~/FED_ARTIK_ROOT
+BUILDARCH=armv7hl
+FEDORA_VER=f22
+USE_DISTCC=0
+USE_OFFICIAL_REPO=1
+__EOF__
+fi
+
 parse_config $BUILDCONFIG
 parse_options $@
 
