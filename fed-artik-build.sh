@@ -17,6 +17,7 @@ RPM_DIR=/root/rpmbuild/RPMS
 pkg_src_type=
 pkg_name=
 pkg_version=
+pkg_full_name=
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
 
@@ -73,11 +74,11 @@ parse_options()
 parse_source_type()
 {
 	local __src_type=$1
-	SOURCE_TYPE="tar.gz tar.bz2 tar.xz"
+	SOURCE_TYPE="tar.gz tgz tar.bz2 tar.xz"
 
 	for _type in $SOURCE_TYPE
 	do
-		result=`grep "^Source[0-9]:\|^Source:" $SPECFILE | grep "$_type"`
+		result=`grep "^Source[0-9]:\|^Source:" $SPECFILE | grep "$_type"` || true
 		if [ "$result" != "" ]; then
 			eval $__src_type=$_type
 			break
@@ -95,21 +96,34 @@ parse_pkg_info()
 
 	pkg_version=`grep '^Version:' $SPECFILE | awk '{ print $2 }'`
 	[ "$pkg_version" == "" ] && die "cannot find package version from spec"
+
+	pkg_full_name=`rpmspec --query --srpm --queryformat="%{Source}" $SPECFILE`
+	[ "$pkg_full_name" == "" ] && die "cannot find package version from spec"
 	echo "1" > /dev/null
 }
 
 archive_git_source()
 {
 	local src_dir=$1
+	local head=
+
 	if [ $INCLUDE_ALL ]; then
 		uploadStash=`git stash create`
-		sudo git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
-			-o $src_dir/$pkg_name-$pkg_version.$pkg_src_type ${uploadStash:-HEAD}
-
+		head=${uploadStash:-HEAD}
 	else
-		sudo git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ \
-			-o $src_dir/$pkg_name-$pkg_version.$pkg_src_type HEAD
+		head=HEAD
 	fi
+
+	case "$pkg_src_type" in
+		tar.gz|tgz)
+			sudo sh -c "git archive --format=$pkg_src_type --prefix=$pkg_name-$pkg_version/ -o $src_dir/$pkg_name-$pkg_version.$pkg_src_type $head"
+			;;
+		tar.bz2)
+			sudo sh -c "git archive --format=tar --prefix=$pkg_name-$pkg_version/ $head | bzip2 > $src_dir/$pkg_name-$pkg_version.$pkg_src_type"
+			;;
+		tar.xz)
+			sudo sh -c "git archive --format=tar --prefix=$pkg_name-$pkg_version/ $head | xz > $src_dir/$pkg_name-$pkg_version.$pkg_src_type"
+	esac
 }
 
 setup_local_repo()
