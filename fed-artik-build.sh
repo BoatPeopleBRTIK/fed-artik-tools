@@ -8,6 +8,7 @@ BUILDARCH=armv7hl
 INCLUDE_ALL=
 DEFINE=
 SPECFILE=
+CLEAN_REPOS=false
 
 SRC_DIR=/root/rpmbuild/SOURCES
 SPEC_DIR=/root/rpmbuild/SPECS
@@ -31,6 +32,7 @@ usage() {
 	--define DEFINE	define macro X with value Y with format "X Y"
 	--spec SPECFILE	specify a spec file to use. It should be a file name
 	                that this tool will find it in packaging dir
+	--clean-repos	Clean up repo directory before build
 EOF
 	exit 0
 }
@@ -58,6 +60,9 @@ parse_options()
 				shift ;;
 			--spec)
 				SPECFILE="$2"
+				shift ;;
+			--clean-repos)
+				CLEAN_REPOS=true
 				shift ;;
 			*)
 				shift ;;
@@ -163,6 +168,10 @@ parse_options "$@"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
+
+if $CLEAN_REPOS ; then
+	rm -rf $LOCAL_REPO/*
+fi
 
 parse_pkg_info
 archive_git_source $SCRATCH_ROOT/$SRC_DIR
