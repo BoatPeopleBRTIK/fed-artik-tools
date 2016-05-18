@@ -60,14 +60,13 @@ change_official_repo()
 {
 	local scratch_root=$1
 	sudo sed -i 's/^metalink/#metalink/g' $scratch_root/etc/yum.repos.d/fedora*
-	[ -d $scratch_root/etc/yum.repos.d/rpmfusion* ] && \
-		sudo sed -i 's/^mirrorlist/#mirrorlist/g' $scratch_root/etc/yum.repos.d/rpmfusion*
+	sudo sed -i 's/^mirrorlist/#mirrorlist/g' $scratch_root/etc/yum.repos.d/rpmfusion*
 	sudo sed -i 's/^#baseurl/baseurl/g' $scratch_root/etc/yum.repos.d/*
 }
 
 install_essential_packages()
 {
-	append_command "dnf install -q -y $ESSENTIAL_PACKAGES"
+	append_command "dnf install -v -y $ESSENTIAL_PACKAGES"
 }
 
 setup_initial_directory()
