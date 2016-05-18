@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 BUILDCONFIG=~/.fed-artik-build.conf
 BUILDROOT=
 BUILDARCH=armv7hl
@@ -81,13 +83,14 @@ parse_source_type()
 parse_pkg_info()
 {
 	parse_source_type pkg_src_type
-	[ -z $pkg_src_type ] && die "cannot find source type from spec"
+	[ "$pkg_src_type" == "" ] && die "cannot find source type from spec"
 
 	pkg_name=`grep '^Name:' $SPECFILE | awk '{ print $2 }'`
-	[ -z $pkg_name ] && die "cannot fine package name from spec"
+	[ "$pkg_name" == "" ] && die "cannot find package name from spec"
 
 	pkg_version=`grep '^Version:' $SPECFILE | awk '{ print $2 }'`
-	[ -z $pkg_version ] && die "cannot fine package version from spec"
+	[ "$pkg_version" == "" ] && die "cannot find package version from spec"
+	echo "1" > /dev/null
 }
 
 archive_git_source()
@@ -149,7 +152,7 @@ copy_output_rpms()
 detect_spec_file()
 {
 	SPECFILE=`find ./packaging -name "*.spec"`
-	[ ! -e $SPECFILE ] && die "not found spec file"
+	[ -e $SPECFILE ] || die "not found spec file"
 }
 
 eval BUILDROOT=$BUILDROOT
