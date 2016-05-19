@@ -4,7 +4,7 @@
 	dh $@
 
 override_dh_usrlocal:
-	dh_install *.sh /usr/local/bin
+	dh_install run_appliance_creator.sh /usr/local/bin
 	dh_install chroot_fedora /usr/local/bin
 	dh_install extract_fedora /usr/local/bin
 	dh_install fed-artik-build /usr/local/bin
