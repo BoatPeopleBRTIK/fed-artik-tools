@@ -111,6 +111,7 @@ run_creator()
 	local chroot_output_dir=$5
 
 	local build_cmd="rm -rf /var/cache/local*; createrepo $local_repo; dnf makecache; "
+	local build_cmd="dnf -y reinstall appliance-tools python-imgcreate;"
 	local build_cmd+="cd $chroot_output_dir; ./run_appliance_creator.sh $ks_file $chroot_output_dir $ks_name $FEDORA_VER"
 
 	sudo $SCRIPT_DIR/chroot_fedora -b $local_repo $scratch_root "$build_cmd"
