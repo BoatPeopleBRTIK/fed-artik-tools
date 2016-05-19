@@ -92,6 +92,18 @@ setup_distcc()
 	append_command "echo 127.0.0.1 > /etc/distcc/hosts"
 }
 
+copy_qemu_arm_static()
+{
+	local scratch_root=$1
+	if [ -e $SCRIPT_DIR/qemu-arm-static ]; then
+		sudo cp $SCRIPT_DIR/qemu-arm-static $scratch_root/usr/bin
+	elif [ -e /usr/local/bin/qemu-arm-static ]; then
+		sudo cp /usr/local/bin/qemu-arm-static $scratch_root/usr/bin
+	elif [ -e /usr/bin/qemu-arm-static ]; then
+		sudo cp /usr/bin/qemu-arm-static $scratch_root/usr/bin
+	fi
+}
+
 parse_config $BUILDCONFIG
 parse_options "$@"
 
@@ -110,6 +122,7 @@ else
 	change_metalink_repo $SCRATCH_ROOT
 fi
 
+copy_qemu_arm_static $SCRATCH_ROOT
 install_essential_packages
 setup_initial_directory
 [ $USE_DISTCC ] && setup_distcc
