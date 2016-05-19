@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -x
 set -e
 
 BUILDCONFIG=~/.fed-artik-build.conf
@@ -76,14 +75,21 @@ prepare_creator_directory()
 	local chroot_output_dir=$2
 	local ks_file=$3
 	local copy_dir=$4
+	local local_repo=$5
 
-	sudo sh -c "mkdir -p $scratch_root/$chroot_output_dir"
-	sudo sh -c "rm -rf $scratch_root/$chroot_output_dir/*"
-	sudo sh -c "cp -f $SCRIPT_DIR/run_appliance_creator.sh $scratch_root/$chroot_output_dir/"
+	local out_dir=$scratch_root/$chroot_output_dir
 
-	sudo sh -c "cp -f $ks_file $scratch_root/$chroot_output_dir"
+	local ks_base=$(basename "$ks_file")
+
+	sudo sh -c "mkdir -p $out_dir"
+	sudo sh -c "rm -rf $out_dir/*"
+	sudo sh -c "cp -f $SCRIPT_DIR/run_appliance_creator.sh $out_dir/"
+
+	sudo sh -c "cp -f $ks_file $out_dir"
+	sudo sed -i "/\%package/i repo --name=local --baseurl=file:\/\/${local_repo} --cost=1" $out_dir/$ks_base
+
 	if [ "$copy_dir" != "" ]; then
-		sudo sh -c "cp -rf $copy_dir $scratch_root/$chroot_output_dir"
+		sudo sh -c "cp -rf $copy_dir $out_dir"
 	fi
 }
 
@@ -153,6 +159,6 @@ KS_NAME=${KS_BASE%.*}
 
 setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 copy_creator_rpm $SCRIPT_DIR $LOCAL_REPO
-prepare_creator_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR $KS_FILE $COPY_DIR
+prepare_creator_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR $KS_FILE $COPY_DIR $LOCAL_REPO
 run_creator $SCRATCH_ROOT $LOCAL_REPO $KS_BASE $KS_NAME $CHROOT_OUTPUT_DIR
 copy_output_file $SCRATCH_ROOT $OUTPUT_DIR $CHROOT_OUTPUT_DIR $KS_NAME
