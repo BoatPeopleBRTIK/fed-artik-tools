@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_usrlocal:
+	dh_install *.sh /usr/local/bin
+	dh_install chroot_fedora /usr/local/bin
+	dh_install extract_fedora /usr/local/bin
+	dh_install fed-artik-build /usr/local/bin
+	dh_install fed-artik-chroot /usr/local/bin
+	dh_install fed-artik-common.inc /usr/local/bin
+	dh_install fed-artik-creator /usr/local/bin
+	dh_install fed-artik-host-init-buildsys /usr/local/bin
+	dh_install fed-artik-init-buildsys /usr/local/bin
+	dh_install qemu-arm-static /usr/local/bin
+	dh_install .fed-artik-build.conf /usr/local/bin
+	dh_install *.rpm /usr/local/bin

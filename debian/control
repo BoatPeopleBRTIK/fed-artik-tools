@@ -1,0 +1,11 @@
+Source: fed-artik-tools
+Section: misc
+Priority: extra
+Maintainer: Chanho Park <chanho61.park@samsung.com>
+Build-Depends: debhelper (>= 5)
+Standards-Version: 3.9.4
+
+Package: fed-artik-tools
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, qemu-user-static, createrepo, libguestfs-tools
+Description: ARTIK build tools
