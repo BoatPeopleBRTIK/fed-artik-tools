@@ -10,7 +10,7 @@ ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-c
 USE_DISTCC=false
 IMPORT_ROOTFS=
 
-. `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
+. `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
 usage() {
 	cat <<EOF
@@ -128,6 +128,6 @@ setup_initial_directory
 [ $USE_DISTCC ] && setup_distcc
 
 echo "### You may need to wait long time(>5 minutes) to synchronize rpmdb"
-sudo $SCRIPT_DIR/chroot_fedora.sh $SCRATCH_ROOT "$EXECUTE_COMMANDS"
+sudo $SCRIPT_DIR/chroot_fedora $SCRATCH_ROOT "$EXECUTE_COMMANDS"
 
 echo "### fedora artik build system has been created"

@@ -19,7 +19,7 @@ pkg_name=
 pkg_version=
 pkg_full_name=
 
-. `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
+. `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
 usage() {
 	cat <<EOF
@@ -153,7 +153,7 @@ run_rpmbuild()
 	fi
 	build_cmd+=" $SPEC_DIR/$spec_base"
 
-	sudo $SCRIPT_DIR/chroot_fedora.sh -b $local_repo $scratch_root "$build_cmd"
+	sudo $SCRIPT_DIR/chroot_fedora -b $local_repo $scratch_root "$build_cmd"
 }
 
 copy_output_rpms()

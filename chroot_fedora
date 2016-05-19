@@ -7,7 +7,7 @@ POST_CHROOT_CMD=
 USER=
 EXECUTE_COMMANDS=""
 
-. `dirname "$(readlink -f "$0")"`/fed-artik-common.sh
+. `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
 usage() {
 	cat <<EOF
