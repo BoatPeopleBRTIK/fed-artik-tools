@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 BUILDCONFIG=~/.fed-artik-build.conf
 BUILDROOT=
 BUILDARCH=armv7hl

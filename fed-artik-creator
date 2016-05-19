@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 BUILDCONFIG=~/.fed-artik-build.conf
 BUILDROOT=
 OUTPUT_DIR=`pwd`/fed_artik_output
