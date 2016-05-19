@@ -163,6 +163,7 @@ copy_output_rpms()
 	local build_arch=$3
 
 	sudo sh -c "cp -f $scratch_root/$RPM_DIR/$build_arch/*.rpm $local_repo"
+	sudo sh -c "cp -f $scratch_root/$RPM_DIR/noarch/*.rpm $local_repo"
 	sudo sh -c "chown $user:$user $local_repo/*"
 }
 
