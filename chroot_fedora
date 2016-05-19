@@ -112,7 +112,10 @@ chroot_setup() {
 }
 
 chroot_teardown() {
-	umount "${CHROOT_ACTIVE_MOUNTS[@]}"
+	for m in "${CHROOT_ACTIVE_MOUNTS[@]}"
+	do
+		umount -l $m
+	done
 	unset CHROOT_ACTIVE_MOUNTS
 }
 
