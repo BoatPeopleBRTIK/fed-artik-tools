@@ -97,6 +97,7 @@ copy_creator_rpm()
 	local local_repo=$2
 
 	cp $script_dir/livecd-tools*.rpm $local_repo
+	cp $script_dir/python-imgcreate*.rpm $local_repo
 	cp $script_dir/appliance-tools*.rpm $local_repo
 }
 
