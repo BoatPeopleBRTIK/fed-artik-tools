@@ -151,7 +151,7 @@ run_rpmbuild()
 	fi
 	build_cmd+=" $SPEC_DIR/$spec_base"
 
-	sudo $SCRIPT_DIR/chroot_fedora -b $local_repo $scratch_root "$build_cmd"
+	sudo -H $SCRIPT_DIR/chroot_fedora -b $local_repo $scratch_root "$build_cmd"
 }
 
 copy_output_rpms()
