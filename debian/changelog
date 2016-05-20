@@ -1,3 +1,9 @@
+fed-artik-tools (1.0.1) UNRELEASED; urgency=medium
+
+  * Fix /var/cache/dnf directory
+
+ -- Chanho Park <chanho61.park@samsung.com>  Fri, 20 May 2016 20:15:05 +0900
+
 fed-artik-tools (1.0.0) UNRELEASED; urgency=medium
 
   * Initial release.
