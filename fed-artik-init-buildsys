@@ -66,7 +66,7 @@ change_official_repo()
 	sudo sed -i 's/metadata_expire=6h/metadata_expire=7d/g' $scratch_root/etc/yum.repos.d/fedora-updates.repo
 }
 
-change_readlink_repo()
+change_metalink_repo()
 {
 	local scratch_root=$1
 	sudo sed -i 's/^#metalink/metalink/g' $scratch_root/etc/yum.repos.d/fedora*
