@@ -96,9 +96,9 @@ copy_creator_rpm()
 	local script_dir=$1
 	local local_repo=$2
 
-	cp $script_dir/livecd-tools*.rpm $local_repo
-	cp $script_dir/python-imgcreate*.rpm $local_repo
-	cp $script_dir/appliance-tools*.rpm $local_repo
+	install -m 664 -o $user -g $user $script_dir/livecd-tools*.rpm $local_repo
+	install -m 664 -o $user -g $user $script_dir/python-imgcreate*.rpm $local_repo
+	install -m 664 -o $user -g $user $script_dir/appliance-tools*.rpm $local_repo
 }
 
 run_creator()
@@ -141,10 +141,13 @@ _EOF_
 	ls -l $output_dir/$output_name.gz
 }
 
+BUILDCONFIG="${BUILDCONFIG/#\~/$HOME}"
+BUILDROOT="${BUILDROOT/#\~/$HOME}"
 eval BUILDROOT=$BUILDROOT
 parse_config $BUILDCONFIG
 parse_options "$@"
 
+BUILDROOT="${BUILDROOT/#\~/$HOME}"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS

@@ -105,9 +105,12 @@ copy_qemu_arm_static()
 	fi
 }
 
+BUILDCONFIG="${BUILDCONFIG/#\~/$HOME}"
+
 parse_config $BUILDCONFIG
 parse_options "$@"
 
+BUILDROOT="${BUILDROOT/#\~/$HOME}"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 [ ! -d $SCRATCH_ROOT ] && die "cannot find buildroot"
