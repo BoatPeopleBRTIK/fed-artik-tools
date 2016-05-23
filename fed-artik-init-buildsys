@@ -7,7 +7,7 @@ USE_OFFICIAL_REPO=false
 BUILDROOT=
 EXECUTE_COMMANDS=""
 ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core createrepo appliance-tools"
-USE_DISTCC=false
+USE_DISTCC=0
 IMPORT_ROOTFS=
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
@@ -129,7 +129,7 @@ fi
 copy_qemu_arm_static $SCRATCH_ROOT
 install_essential_packages
 setup_initial_directory
-[ $USE_DISTCC ] && setup_distcc
+[ "$USE_DISTCC" == "1" ] && setup_distcc
 
 echo "### You may need to wait long time(>5 minutes) to synchronize rpmdb"
 sudo -H $SCRIPT_DIR/chroot_fedora $SCRATCH_ROOT "$EXECUTE_COMMANDS"
