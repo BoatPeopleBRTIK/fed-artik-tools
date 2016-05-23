@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILDCONFIG=~/.fed-artik-build.conf
+BUILDCONFIG="~/.fed-artik-build.conf"
 BUILDROOT=
 BUILDARCH=armv7hl
 INCLUDE_ALL=
@@ -171,15 +171,15 @@ detect_spec_file()
 	[ -e $SPECFILE ] || die "not found spec file"
 }
 
-BUILDCONFIG="${BUILDCONFIG/#\~/$HOME}"
+BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
 
-BUILDROOT="${BUILDROOT/#\~/$HOME}"
+BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
 detect_spec_file
 parse_config $BUILDCONFIG
 parse_options "$@"
 
-BUILDROOT="${BUILDROOT/#\~/$HOME}"
+BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS

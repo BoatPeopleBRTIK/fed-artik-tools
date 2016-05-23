@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILDCONFIG=~/.fed-artik-build.conf
+BUILDCONFIG="~/.fed-artik-build.conf"
 BUILDROOT=
 OUTPUT_DIR=`pwd`/fed_artik_output
 COPY_DIR=
@@ -171,13 +171,13 @@ _EOF_
 	ls -l $output_dir/$output_name.gz
 }
 
-BUILDCONFIG="${BUILDCONFIG/#\~/$HOME}"
-BUILDROOT="${BUILDROOT/#\~/$HOME}"
+BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
+BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
 parse_config $BUILDCONFIG
 parse_options "$@"
 
-BUILDROOT="${BUILDROOT/#\~/$HOME}"
+BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS

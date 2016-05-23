@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILDCONFIG=~/.fed-artik-build.conf
+BUILDCONFIG="~/.fed-artik-build.conf"
 FEDORA_VER=f22
 BUILDARCH=armv7hl
 USE_OFFICIAL_REPO=false
@@ -105,12 +105,12 @@ copy_qemu_arm_static()
 	fi
 }
 
-BUILDCONFIG="${BUILDCONFIG/#\~/$HOME}"
+BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
 
 parse_config $BUILDCONFIG
 parse_options "$@"
 
-BUILDROOT="${BUILDROOT/#\~/$HOME}"
+BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 [ ! -d $SCRATCH_ROOT ] && die "cannot find buildroot"
