@@ -4,6 +4,7 @@ BUILDCONFIG=~/.fed-artik-build.conf
 BUILDROOT=
 OUTPUT_DIR=`pwd`/fed_artik_output
 COPY_DIR=
+COPY_KICKSTART_DIR=
 KS_FILE=
 
 CHROOT_OUTPUT_DIR=/root/fed_artik_output
@@ -18,6 +19,7 @@ usage() {
 	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
 	-o OUTPUT_DIR	Output directory
 	--copy-dir	Copy directory under kickstart file
+	--copy-kickstart-dir	Copy whole kickstart directory
 	--ks-file KS	Kickstart file
 EOF
 	exit 0
@@ -40,6 +42,9 @@ parse_options()
 				[ ! -d $OUTPUT_DIR ] && mkdir -p $OUTPUT_DIR
 				shift ;;
 			--copy-dir)
+				COPY_DIR="$2"
+				shift ;;
+			--copy-kickstart-dir)
 				COPY_DIR="$2"
 				shift ;;
 			--ks-file)
@@ -71,24 +76,49 @@ prepare_creator_directory()
 {
 	local scratch_root=$1
 	local chroot_output_dir=$2
+
+	local out_dir=$scratch_root/$chroot_output_dir
+
+	sudo sh -c "mkdir -p $out_dir"
+	sudo sh -c "rm -rf $out_dir/*"
+	sudo sh -c "cp -f $SCRIPT_DIR/run_appliance_creator.sh $out_dir/"
+}
+
+copy_directory()
+{
+	local scratch_root=$1
+	local chroot_output_dir=$2
+	local copy_dir=$3
+
+	local out_dir=$scratch_root/$chroot_output_dir
+
+	sudo sh -c "cp -rf $copy_dir $out_dir"
+}
+
+copy_kickstart_directory()
+{
+	local scratch_root=$1
+	local chroot_output_dir=$2
+	local copy_dir=$3
+
+	local out_dir=$scratch_root/$chroot_output_dir
+
+	sudo sh -c "cp -rf $copy_dir/* $out_dir"
+}
+
+prepare_local_repo()
+{
+	local scratch_root=$1
+	local chroot_output_dir=$2
 	local ks_file=$3
-	local copy_dir=$4
-	local local_repo=$5
+	local local_repo=$4
 
 	local out_dir=$scratch_root/$chroot_output_dir
 
 	local ks_base=$(basename "$ks_file")
 
-	sudo sh -c "mkdir -p $out_dir"
-	sudo sh -c "rm -rf $out_dir/*"
-	sudo sh -c "cp -f $SCRIPT_DIR/run_appliance_creator.sh $out_dir/"
-
 	sudo sh -c "cp -f $ks_file $out_dir"
-	sudo sed -i "/\%package/i repo --name=local --baseurl=file:\/\/${local_repo} --cost=1" $out_dir/$ks_base
-
-	if [ "$copy_dir" != "" ]; then
-		sudo sh -c "cp -rf $copy_dir $out_dir"
-	fi
+	sudo sed -i "0,/.*repo*/s|.*repo*.|repo --name=local --baseurl=file:\/\/${local_repo} --cost=1\n&|" $out_dir/$ks_base
 }
 
 copy_creator_rpm()
@@ -162,6 +192,13 @@ KS_NAME=${KS_BASE%.*}
 
 setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 copy_creator_rpm $SCRIPT_DIR $LOCAL_REPO
-prepare_creator_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR $KS_FILE $COPY_DIR $LOCAL_REPO
+prepare_creator_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR
+if [ "$COPY_KICKSTART_DIR" != "" ]; then
+	copy_kickstart_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR $COPY_KICKSTART_DIR
+fi
+if [ "$COPY_DIR" != "" ]; then
+	copy_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR $COPY_DIR
+fi
+prepare_local_repo $SCRATCH_ROOT $CHROOT_OUTPUT_DIR $KS_FILE $LOCAL_REPO
 run_creator $SCRATCH_ROOT $LOCAL_REPO $KS_BASE $KS_NAME $CHROOT_OUTPUT_DIR
 copy_output_file $SCRATCH_ROOT $OUTPUT_DIR $CHROOT_OUTPUT_DIR $KS_NAME
