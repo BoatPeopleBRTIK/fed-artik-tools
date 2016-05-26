@@ -45,7 +45,7 @@ parse_options()
 				COPY_DIR="$2"
 				shift ;;
 			--copy-kickstart-dir)
-				COPY_DIR="$2"
+				COPY_KICKSTART_DIR="$2"
 				shift ;;
 			--ks-file)
 				KS_FILE="$2"
