@@ -7,6 +7,7 @@ INCLUDE_ALL=
 DEFINE=
 SPECFILE=
 CLEAN_REPOS=false
+CLEAN_REPOS_AND_EXIT=false
 
 SRC_DIR=/root/rpmbuild/SOURCES
 SPEC_DIR=/root/rpmbuild/SPECS
@@ -62,6 +63,10 @@ parse_options()
 				shift ;;
 			--clean-repos)
 				CLEAN_REPOS=true
+				shift ;;
+			--clean-repos-and-exit)
+				CLEAN_REPOS=true
+				CLEAN_REPOS_AND_EXIT=true
 				shift ;;
 			*)
 				shift ;;
@@ -192,7 +197,10 @@ SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
 
 if $CLEAN_REPOS ; then
-	rm -rf $LOCAL_REPO/*
+	sudo rm -rf $LOCAL_REPO/*
+	if $CLEAN_REPOS_AND_EXIT ; then
+		exit 0
+	fi
 fi
 
 parse_pkg_info
