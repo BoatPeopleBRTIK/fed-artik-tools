@@ -1,3 +1,9 @@
+fed-artik-tools (1.0.4) UNRELEASED; urgency=medium
+
+  * build: support alternative source type
+
+ -- Chanho Park <chanho61.park@samsung.com>  Thu, 26 May 2016 10:01:41 +0900
+
 fed-artik-tools (1.0.3) UNRELEASED; urgency=medium
 
   * support ubuntu 14.04 sudo environment
