@@ -187,7 +187,6 @@ BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
 
 BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
-detect_spec_file
 parse_config $BUILDCONFIG
 parse_options "$@"
 
@@ -203,6 +202,7 @@ if $CLEAN_REPOS ; then
 	fi
 fi
 
+detect_spec_file
 parse_pkg_info
 archive_git_source $SCRATCH_ROOT/$SRC_DIR
 
