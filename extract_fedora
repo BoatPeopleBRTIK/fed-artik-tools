@@ -6,7 +6,7 @@ TARGET_DIR=$2
 print_usage()
 {
 	echo "$0 [image_name] [target_dir]"
-	echo "Ex) $0 artik10_sdfuse.img fedora_root"
+	echo "Ex) $0 artik10_sdfuse.img ."
 	exit 0
 }
 
@@ -25,13 +25,11 @@ fi
 
 sudo ls > /dev/null 2>&1
 
+[ -d $TARGET_DIR ] || mkdir -p $TARGET_DIR
+
 sudo guestfish << _EOF_
 add $1
 run
 mount /dev/sda3 /
-copy-out /rootfs.tar.gz .
+copy-out /rootfs.tar.gz $TARGET_DIR
 _EOF_
-
-[ -d $TARGET_DIR ] || mkdir -p $TARGET_DIR
-
-sudo tar xf rootfs.tar.gz -C $TARGET_DIR
