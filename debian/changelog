@@ -1,3 +1,14 @@
+fed-artik-tools (1.0.5) UNRELEASED; urgency=medium
+
+  * build: move detect spec file after option parsing
+  * creator: correct copy kickstart directory
+  * build: add clean-repos-and-exit
+  * extract_fedora: do not extract rootfs.tar.gz file
+  * debian: add git package dependency
+  * build: copy out only compiled rpm packages
+
+ -- Chanho Park <chanho61.park@samsung.com>  Fri, 27 May 2016 10:52:34 +0900
+
 fed-artik-tools (1.0.4) UNRELEASED; urgency=medium
 
   * build: support alternative source type
