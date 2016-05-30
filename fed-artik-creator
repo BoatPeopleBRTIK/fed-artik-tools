@@ -3,6 +3,7 @@
 BUILDCONFIG="~/.fed-artik-build.conf"
 BUILDROOT=
 OUTPUT_DIR=`pwd`/fed_artik_output
+OUTPUT_FILE=
 COPY_DIR=
 COPY_KICKSTART_DIR=
 KS_FILE=
@@ -18,6 +19,7 @@ usage() {
 	-h              Print this help message
 	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
 	-o OUTPUT_DIR	Output directory
+	--output-file	Output file name
 	--copy-dir	Copy directory under kickstart file
 	--copy-kickstart-dir	Copy whole kickstart directory
 	--ks-file KS	Kickstart file
@@ -40,6 +42,9 @@ parse_options()
 			-o)
 				OUTPUT_DIR=`readlink -m "$2"`
 				[ ! -d $OUTPUT_DIR ] && mkdir -p $OUTPUT_DIR
+				shift ;;
+			--output-file)
+				OUTPUT_FILE="$2"
 				shift ;;
 			--copy-dir)
 				COPY_DIR="$2"
@@ -154,7 +159,11 @@ copy_output_file()
 	local ks_name=$4
 
 	local disk_file=$scratch_root/$chroot_output_dir/$ks_name/$ks_name-sda.raw
-	local output_name=$ks_name-rootfs-`date +"%Y%m%d%H%M%S"`.tar
+	if [ "$OUTPUT_FILE" == "" ]; then
+		local output_name=$ks_name-rootfs-`date +"%Y%m%d%H%M%S"`.tar
+	else
+		local output_name=${OUTPUT_FILE}.tar
+	fi
 
 	sudo sh -c "guestfish << _EOF_
 add $disk_file
