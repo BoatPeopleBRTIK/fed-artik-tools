@@ -173,7 +173,7 @@ mount /dev/sda1 /
 tar-out / $output_dir/$output_name
 _EOF_
 "
-	gzip $output_dir/$output_name
+	gzip -f $output_dir/$output_name
 
 	echo "Clean up chroot build directory..."
 	sudo sh -c "rm -rf $scratch_root/$chroot_output_dir"
