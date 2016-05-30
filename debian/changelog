@@ -1,3 +1,12 @@
+fed-artik-tools (1.0.6) UNRELEASED; urgency=medium
+
+  * creator: use force gzip compression
+  * creator: do createrepo before
+  * creator: support output file name
+  * build: reinstall local packages before starting build
+
+ -- Chanho Park <chanho61.park@samsung.com>  Mon, 30 May 2016 12:48:08 +0900
+
 fed-artik-tools (1.0.5) UNRELEASED; urgency=medium
 
   * build: move detect spec file after option parsing
