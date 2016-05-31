@@ -145,7 +145,7 @@ run_creator()
 	local ks_name=$4
 	local chroot_output_dir=$5
 
-	local build_cmd="rm -rf /var/cache/dnf/local*; dnf makecache; "
+	local build_cmd="rm -rf /var/cache/dnf/local*; dnf makecache; yum-deprecated makecache;"
 	local build_cmd+="dnf -y reinstall appliance-tools python-imgcreate;"
 	local build_cmd+="cd $chroot_output_dir; ./run_appliance_creator.sh $ks_file $chroot_output_dir $ks_name $FEDORA_VER"
 
