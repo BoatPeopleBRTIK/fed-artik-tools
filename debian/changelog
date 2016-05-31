@@ -1,3 +1,10 @@
+fed-artik-tools (1.0.7) UNRELEASED; urgency=medium
+
+  * use yum-deprecated to reinstall local repository packages
+  * creator: fix local rpm install order
+
+ -- Chanho Park <chanho61.park@samsung.com>  Tue, 31 May 2016 13:06:05 +0900
+
 fed-artik-tools (1.0.6) UNRELEASED; urgency=medium
 
   * creator: use force gzip compression
