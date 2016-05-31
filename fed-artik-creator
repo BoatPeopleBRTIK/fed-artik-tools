@@ -200,8 +200,8 @@ fi
 KS_BASE=$(basename "$KS_FILE")
 KS_NAME=${KS_BASE%.*}
 
-setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 copy_creator_rpm $SCRIPT_DIR $LOCAL_REPO
+setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 prepare_creator_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR
 if [ "$COPY_KICKSTART_DIR" != "" ]; then
 	copy_kickstart_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR $COPY_KICKSTART_DIR
