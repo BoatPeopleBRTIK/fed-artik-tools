@@ -123,11 +123,11 @@ archive_git_source()
 			sudo sh -c "git archive --format=$pkg_src_type --prefix=$pkg_directory/ -o $src_dir/$pkg_full_name $head"
 			;;
 		tar.bz2)
-			directory=$(f
 			sudo sh -c "git archive --format=tar --prefix=$pkg_directory/ $head | bzip2 > $src_dir/$pkg_full_name"
 			;;
 		tar.xz)
 			sudo sh -c "git archive --format=tar --prefix=$pkg_directory/ $head | xz > $src_dir/$pkg_full_name"
+			;;
 	esac
 }
 
