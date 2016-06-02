@@ -1,3 +1,9 @@
+fed-artik-tools (1.0.9) UNRELEASED; urgency=medium
+
+  * build: correct archive for xz
+
+ -- Chanho Park <chanho61.park@samsung.com>  Thu, 02 Jun 2016 10:04:09 +0900
+
 fed-artik-tools (1.0.8) UNRELEASED; urgency=medium
 
   * creator: add copy-rpm-dir option for copying prebuilt rpm
