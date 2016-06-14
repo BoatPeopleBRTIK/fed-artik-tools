@@ -223,6 +223,7 @@ LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
 
 if [ "$COPY_RPM_DIR" != "" ]; then
 	copy_prebuilt_rpm $COPY_RPM_DIR $LOCAL_REPO
+	exit 0
 fi
 
 [ ! -d $OUTPUT_DIR ] && mkdir -p $OUTPUT_DIR
