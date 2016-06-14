@@ -165,8 +165,7 @@ run_rpmbuild()
 	local scratch_root=$1
 	local local_repo=$2
 	local spec_base=$(basename "$SPECFILE")
-	local build_cmd="rm -rf /var/cache/dnf/local*; dnf makecache; yum-deprecated makecache;"
-	build_cmd+="yum-deprecated -y repo-pkgs local reinstall;"
+	local build_cmd="rm -rf /var/cache/dnf/local*; dnf makecache;"
 	build_cmd+="dnf -y --best --allowerasing builddep $SPEC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
 	if [ "$DEFINE" != "" ]; then
 		build_cmd+=" --define \"$DEFINE\""
