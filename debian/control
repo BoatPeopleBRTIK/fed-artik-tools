@@ -7,5 +7,5 @@ Standards-Version: 3.9.4
 
 Package: fed-artik-tools
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, qemu-user-static, createrepo, libguestfs-tools, git
+Depends: ${shlibs:Depends}, ${misc:Depends}, qemu-user-static, createrepo, libguestfs-tools, git, sudo
 Description: ARTIK build tools
