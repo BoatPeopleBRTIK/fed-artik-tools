@@ -143,9 +143,9 @@ prepare_local_repo()
 
 	sudo sh -c "cp -f $ks_file $out_dir"
 	if [ "$REPO_URL" != "" ]; then
-		sudo sed -i "0,/.*repo*/s|.*repo*.|repo --name=artik --baseurl=${REPO_URL} --cost=2\n&|" $out_dir/$ks_base
+		sudo sed -i "1s|^|repo --name=artik --baseurl=${REPO_URL} --cost=2\n&|" $out_dir/$ks_base
 	fi
-	sudo sed -i "0,/.*repo*/s|.*repo*.|repo --name=local --baseurl=file:\/\/${local_repo} --cost=1\n&|" $out_dir/$ks_base
+	sudo sed -i "1s|^|repo --name=local --baseurl=file:\/\/${local_repo} --cost=1\n&|" $out_dir/$ks_base
 }
 
 copy_creator_rpm()
