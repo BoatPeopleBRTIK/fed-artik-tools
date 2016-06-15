@@ -1,3 +1,12 @@
+fed-artik-tools (1.0.11) UNRELEASED; urgency=medium
+
+  * debian: add sudo package dependency
+  * creator: exit after coping prebuilt rpm
+  * drop yum-deprecated command
+  * add to support prebuilt repository url
+
+ -- Chanho Park <chanho61.park@samsung.com>  Wed, 15 Jun 2016 12:25:34 +0900
+
 fed-artik-tools (1.0.10) UNRELEASED; urgency=medium
 
   * build: use allowerasing to upgrade local packages
