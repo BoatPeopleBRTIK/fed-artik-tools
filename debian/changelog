@@ -1,3 +1,9 @@
+fed-artik-tools (1.0.12) UNRELEASED; urgency=medium
+
+  * do not use official repo
+
+ -- Chanho Park <chanho61.park@samsung.com>  Wed, 15 Jun 2016 13:29:36 +0900
+
 fed-artik-tools (1.0.11) UNRELEASED; urgency=medium
 
   * debian: add sudo package dependency
