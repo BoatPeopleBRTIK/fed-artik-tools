@@ -77,7 +77,7 @@ change_metalink_repo()
 
 install_essential_packages()
 {
-	append_command "dnf install -v -y $ESSENTIAL_PACKAGES"
+	append_command "dnf install -v -y --best --allowerasing $ESSENTIAL_PACKAGES"
 }
 
 setup_initial_directory()
