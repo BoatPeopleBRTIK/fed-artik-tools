@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILDCONFIG=".fed-artik-build.conf"
+BUILDCONFIG="/usr/local/share/fed-artik-tools/.fed-artik-build.conf"
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -59,7 +59,7 @@ BUILDROOT=~/FED_ARTIK_ROOT
 BUILDARCH=armv7hl
 FEDORA_VER=f22
 USE_DISTCC=0
-USE_OFFICIAL_REPO=1
+USE_OFFICIAL_REPO=0
 __EOF__
 fi
 
@@ -70,7 +70,7 @@ BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 
-install -m 644 -o $user -g $user .fed-artik-build.conf $HOME
+install -m 644 -o $user -g $user $BUILDCONFIG $(evel echo ~$SUDO_USER)
 make_initial_directories $BUILDROOT $FEDORA_VER $BUILDARCH
 
 if [ "$IMPORT_ROOTFS" != "" ]; then

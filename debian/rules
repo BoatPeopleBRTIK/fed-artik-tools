@@ -14,5 +14,5 @@ override_dh_usrlocal:
 	dh_install fed-artik-host-init-buildsys /usr/local/bin
 	dh_install fed-artik-init-buildsys /usr/local/bin
 	dh_install qemu-arm-static /usr/local/bin
-	dh_install .fed-artik-build.conf /usr/local/bin
-	dh_install *.rpm /usr/local/bin
+	dh_install .fed-artik-build.conf /usr/local/share/fed-artik-tools
+	dh_install prebuilt/* /usr/local/share/fed-artik-tools
