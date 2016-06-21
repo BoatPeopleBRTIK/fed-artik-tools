@@ -233,8 +233,9 @@ fi
 
 KS_BASE=$(basename "$KS_FILE")
 KS_NAME=${KS_BASE%.*}
+PREBUILT_RPM_DIR=/usr/local/share/fed-artik-tools/$FEDORA_VER/$BUILDARCH
 
-copy_creator_rpm $SCRIPT_DIR $LOCAL_REPO
+copy_creator_rpm $PREBUILT_RPM_DIR $LOCAL_REPO
 
 setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 if [ "$REPO_URL" != "" ]; then
