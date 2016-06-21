@@ -42,15 +42,34 @@ parse_options()
 make_initial_directories()
 {
 	local root_dir=$1
-	local repo_name=$2
-	local repo_arch=$3
 
 	install -d -o $user -g $user $root_dir
 	install -d -o $user -g $user $root_dir/BUILDROOT
+}
+
+make_repository_directories()
+{
+	local root_dir=$1
+	local repo_name=$2
+	local repo_arch=$3
+
 	install -d -o $user -g $user $root_dir/repos/
 	install -d -o $user -g $user $root_dir/repos/$repo_name/
 	install -d -o $user -g $user $root_dir/repos/$repo_name/$repo_arch/
 	install -d -o $user -g $user $root_dir/repos/$repo_name/$repo_arch/{RPMS,SRPMS}
+}
+
+detect_fedora_version()
+{
+	local root_dir=$1
+	local target_config=$2
+
+	fedora_ver=`cat $root_dir/BUILDROOT/etc/fedora-release | awk '{ print $3 }'`
+
+	if [ "$fedora_ver" != "$FEDORA_VER" ]; then
+		sed -i "s/FEDORA_VER=.*/FEDORA_VER=$fedora_ver/" $target_config
+		FEDORA_VER=$fedora_ver
+	fi
 }
 
 if [ ! -e $BUILDCONFIG ]; then
@@ -70,13 +89,18 @@ BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 
-install -m 644 -o $user -g $user $BUILDCONFIG $(evel echo ~$SUDO_USER)
+TARGET_CONFIG=$(eval echo ~$SUDO_USER)/.fed-artik-build.conf
+
+install -m 644 -o $user -g $user $BUILDCONFIG $TARGET_CONFIG
 make_initial_directories $BUILDROOT $FEDORA_VER $BUILDARCH
 
 if [ "$IMPORT_ROOTFS" != "" ]; then
 	sudo rm -rf $SCRATCH_ROOT/*
 	sudo tar xf $IMPORT_ROOTFS -C $SCRATCH_ROOT
 fi
+
+detect_fedora_version $BUILDROOT $TARGET_CONFIG
+make_repository_directories $BUILDROOT $FEDORA_VER $BUILDARCH
 
 echo "Host setting is done"
 echo "BUILDROOT -> " $BUILDROOT
