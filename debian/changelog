@@ -1,3 +1,15 @@
+fed-artik-tools (1.1.0) UNRELEASED; urgency=medium
+
+  * creator: install prebuilt rpms from local repository
+  * fix prebuild directory name
+  * creator: install imgcreate rpm from prebuilt directory
+  * add f24 imgcreate packages
+  * allow erasing a package during install
+  * detect fedora version from rootfs
+  * move non-script files into share directory
+
+ -- Chanho Park <chanho61.park@samsung.com>  Wed, 22 Jun 2016 09:59:32 +0900
+
 fed-artik-tools (1.0.13) UNRELEASED; urgency=medium
 
   * creator: append local repository on top of the ks file
