@@ -6,6 +6,7 @@ PRE_CHROOT_CMD=
 POST_CHROOT_CMD=
 USER=
 EXECUTE_COMMANDS=""
+ARCH=
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -18,6 +19,7 @@ usage() {
 	-s [script]	Specify host script before chroot
 	-r [script]	Specify host script after chroot
 	-u [user]	Login to user
+	-A [Arch]	Target Architecture(armv7hl, aarch64)
 
 	If 'command' is unspecified, ${0##*/} will launch /bin/sh.
 
@@ -36,6 +38,7 @@ function parse_args()
 			-s ) PRE_CHROOT_CMD=$2; shift 2 ;;
 			-r ) POST_CHROOT_CMD=$2; shift 2 ;;
 			-u ) USER=$2; shift 2;;
+			-A ) ARCH=$2; shift 2;;
 			-- )
 				chrootdir=$2;
 				shift 2
@@ -58,11 +61,11 @@ chroot_maybe_add_mount() {
 	fi
 }
 
-gen_cpuinfo() {
-	if [ ! -e $SCRIPT_DIR/cpuinfo.lie ]; then
+gen_cpuinfo_arm() {
+	if [ ! -e $SCRIPT_DIR/cpuinfo.arm ]; then
 		for ((i = 0; i < `grep -c ^processor /proc/cpuinfo`; i++))
 		do
-			cat >> $SCRIPT_DIR/cpuinfo.lie << __EOF__
+			cat >> $SCRIPT_DIR/cpuinfo.arm << __EOF__
 processor   : ${i}
 model name  : ARMv7 Processor rev 1 (v7l)
 BogoMIPS    : 1250.00
@@ -81,16 +84,49 @@ __EOF__
 	fi
 }
 
+gen_cpuinfo_arm64() {
+	if [ ! -e $SCRIPT_DIR/cpuinfo.arm64 ]; then
+		for ((i = 0; i < `grep -c ^processor /proc/cpuinfo`; i++))
+		do
+			cat >> $SCRIPT_DIR/cpuinfo.arm64 << __EOF__
+processor   : ${i}
+Features        : fp asimd aes pmull sha1 sha2 crc32
+CPU implementer : 0x41
+CPU architecture: 8
+CPU variant     : 0x0
+CPU part        : 0xd03
+CPU revision    : 3
+
+__EOF__
+		done
+	fi
+}
+
 qemu_arm_setup() {
 	[ -e $1/usr/bin/qemu-arm-static ] || cp /usr/bin/qemu-arm-static $1/usr/bin
-	if [ ! -e $SCRIPT_DIR/cpuinfo.lie ]; then
-		gen_cpuinfo
+	if [ ! -e $SCRIPT_DIR/cpuinfo.arm ]; then
+		gen_cpuinfo_arm
 	fi
-	if [ `grep -c ^processor /proc/cpuinfo` != `grep -c ^processor $SCRIPT_DIR/cpuinfo.lie` ]; then
-		rm $SCRIPT_DIR/cpuinfo.lie
-		gen_cpuinfo
+	if [ `grep -c ^processor /proc/cpuinfo` != `grep -c ^processor $SCRIPT_DIR/cpuinfo.arm` ]; then
+		rm $SCRIPT_DIR/cpuinfo.arm
+		gen_cpuinfo_arm
 	fi
-	chroot_add_mount $SCRIPT_DIR/cpuinfo.lie "$1/proc/cpuinfo" -o rbind
+	chroot_add_mount $SCRIPT_DIR/cpuinfo.arm "$1/proc/cpuinfo" -o rbind
+
+	echo "Disable sslverify option of fedora"
+	grep -q 'sslverify' $1/etc/dnf/dnf.conf || echo "sslverify=False" >> $1/etc/dnf/dnf.conf
+}
+
+qemu_arm64_setup() {
+	[ -e $1/usr/bin/qemu-aarch64-static ] || cp /usr/local/bin/qemu-aarch64-static $1/usr/bin
+	if [ ! -e $SCRIPT_DIR/cpuinfo.arm64 ]; then
+		gen_cpuinfo_arm64
+	fi
+	if [ `grep -c ^processor /proc/cpuinfo` != `grep -c ^processor $SCRIPT_DIR/cpuinfo.arm64` ]; then
+		rm $SCRIPT_DIR/cpuinfo.arm64
+		gen_cpuinfo_arm64
+	fi
+	chroot_add_mount $SCRIPT_DIR/cpuinfo.arm64 "$1/proc/cpuinfo" -o rbind
 
 	echo "Disable sslverify option of fedora"
 	grep -q 'sslverify' $1/etc/dnf/dnf.conf || echo "sslverify=False" >> $1/etc/dnf/dnf.conf
@@ -175,6 +211,16 @@ package_check()
 	command -v $1 >/dev/null 2>&1 || { echo >&2 "${1} not installed. Aborting."; exit 1; }
 }
 
+detect_arch()
+{
+	arch_str=`file $chrootdir/bin/bash | grep aarch64`
+	if [ "$arch_str" == "" ]; then
+		ARCH=armv7hl
+	else
+		ARCH=aarch64
+	fi
+}
+
 (( EUID == 0 )) || die 'This script must be run with root privileges'
 
 parse_args "$@"
@@ -185,7 +231,13 @@ package_check qemu-arm-static
 
 chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
 chroot_add_resolv_conf "$chrootdir" || die "failed to setup resolv.conf"
-qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
+[ "$ARCH" == "" ] && detect_arch
+
+if [ "$ARCH" == "armv7hl" ]; then
+	qemu_arm_setup "$chrootdir" || die "failed to setup qemu_arm"
+else
+	qemu_arm64_setup "$chrootdir" || die "failed to setup qemu_arm64"
+fi
 if [ "$USER" != "" ]; then
 	check_create_user "$chrootdir" "$USER" || die "failed to setup user environment"
 fi

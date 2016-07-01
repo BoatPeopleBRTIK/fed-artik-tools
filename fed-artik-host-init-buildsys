@@ -70,6 +70,18 @@ detect_fedora_version()
 		sed -i "s/FEDORA_VER=.*/FEDORA_VER=$fedora_ver/" $target_config
 		FEDORA_VER=$fedora_ver
 	fi
+
+	arch_str=`file $root_dir/BUILDROOT/bin/bash | grep aarch64`
+	if [ "$arch_str" == "" ]; then
+		buildarch=armv7hl
+	else
+		buildarch=aarch64
+	fi
+
+	if [ "$buildarch" != "$BUILDARCH" ]; then
+		sed -i "s/BUILDARCH=.*/BUILDARCH=$buildarch/" $target_config
+		BUILDARCH=$buildarch
+	fi
 }
 
 if [ ! -e $BUILDCONFIG ]; then
@@ -104,5 +116,6 @@ make_repository_directories $BUILDROOT $FEDORA_VER $BUILDARCH
 
 echo "Host setting is done"
 echo "BUILDROOT -> " $BUILDROOT
+echo "BUILDARCH -> " $BUILDARCH
 echo "SCRATCH_ROOT -> " $SCRATCH_ROOT
 echo "Local Repo -> " $BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS

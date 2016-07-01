@@ -5,7 +5,7 @@ BUILDARCH=armv7hl
 USE_OFFICIAL_REPO=false
 BUILDROOT=
 EXECUTE_COMMANDS=""
-ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core createrepo appliance-tools"
+ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core createrepo appliance-tools automake gcc-c++"
 USE_DISTCC=0
 IMPORT_ROOTFS=
 
@@ -80,6 +80,11 @@ install_essential_packages()
 	append_command "dnf install -v -y --best --allowerasing $ESSENTIAL_PACKAGES"
 }
 
+install_rpmfusion_free()
+{
+	append_command "dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORA_VER}.noarch.rpm"
+}
+
 setup_initial_directory()
 {
 	append_command "rpmdev-setuptree"
@@ -92,15 +97,23 @@ setup_distcc()
 	ESSENTIAL_PACKAGES+=" distcc"
 }
 
-copy_qemu_arm_static()
+copy_qemu()
 {
 	local scratch_root=$1
-	if [ -e $SCRIPT_DIR/qemu-arm-static ]; then
-		sudo cp $SCRIPT_DIR/qemu-arm-static $scratch_root/usr/bin
-	elif [ -e /usr/local/bin/qemu-arm-static ]; then
-		sudo cp /usr/local/bin/qemu-arm-static $scratch_root/usr/bin
-	elif [ -e /usr/bin/qemu-arm-static ]; then
-		sudo cp /usr/bin/qemu-arm-static $scratch_root/usr/bin
+	local buildarch=$2
+
+	if [ "$buildarch" == "armv7hl" ]; then
+		QEMU_BIN=qemu-arm-static
+	else
+		QEMU_BIN=qemu-aarch64-static
+	fi
+
+	if [ -e $SCRIPT_DIR/$QEMU_BIN ]; then
+		sudo cp $SCRIPT_DIR/$QEMU_BIN $scratch_root/usr/bin
+	elif [ -e /usr/local/bin/$QEMU_BIN ]; then
+		sudo cp /usr/local/bin/$QEMU_BIN $scratch_root/usr/bin
+	elif [ -e /usr/bin/$QEMU_BIN ]; then
+		sudo cp /usr/bin/$QEMU_BIN $scratch_root/usr/bin
 	fi
 }
 
@@ -125,8 +138,9 @@ else
 	change_metalink_repo $SCRATCH_ROOT
 fi
 
-copy_qemu_arm_static $SCRATCH_ROOT
+copy_qemu $SCRATCH_ROOT $BUILDARCH
 install_essential_packages
+install_rpmfusion_free
 setup_initial_directory
 [ "$USE_DISTCC" == "1" ] && setup_distcc
 
