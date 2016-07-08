@@ -1,3 +1,10 @@
+fed-artik-tools (1.2.1) UNRELEASED; urgency=medium
+
+  * support fedora git build
+  * update qemu static binaries to fix kpartx issue
+
+ -- Chanho Park <chanho61.park@samsung.com>  Fri, 08 Jul 2016 18:23:22 +0900
+
 fed-artik-tools (1.2.0) UNRELEASED; urgency=medium
 
   * support aarch64 architecture
