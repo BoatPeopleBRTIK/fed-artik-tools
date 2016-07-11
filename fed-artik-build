@@ -214,9 +214,12 @@ detect_fedora_git()
 {
 	if [ -e $SPECDIR/sources ]; then
 		SOURCE=`cat $SPECDIR/sources | awk '{ print $2 }'`
-		if [ ! -e $SPECDIR/$SOURCE ]; then
-			DOWNLOAD_SOURCE=true
-		fi
+		for src in $SOURCE
+		do
+			if [ ! -e $SPECDIR/$src ]; then
+				DOWNLOAD_SOURCE=true
+			fi
+		done
 		FEDORA_GIT=true
 	fi
 }
