@@ -2,7 +2,7 @@
 
 BUILDCONFIG="~/.fed-artik-build.conf"
 BUILDARCH=armv7hl
-USE_OFFICIAL_REPO=false
+USE_OFFICIAL_REPO="0"
 BUILDROOT=
 EXECUTE_COMMANDS=""
 ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core createrepo appliance-tools automake gcc-c++"
@@ -44,7 +44,7 @@ parse_options()
 				FEDORA_VER="$2"
 				shift ;;
 			--official-repo)
-				USE_OFFICIAL_REPO=true
+				USE_OFFICIAL_REPO="1"
 				shift ;;
 			-I)
 				IMPORT_ROOTFS="$2"
