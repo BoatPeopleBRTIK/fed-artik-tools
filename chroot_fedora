@@ -182,6 +182,12 @@ chroot_add_resolv_conf() {
 	chroot_add_mount /etc/resolv.conf "$resolv_conf" --bind
 }
 
+chroot_add_hosts() {
+	local chrootdir=$1 hosts=$1/etc/hosts
+
+	chroot_add_mount /etc/hosts "$hosts" --bind
+}
+
 check_create_user()
 {
 	local COMMANDS=
@@ -231,6 +237,8 @@ package_check qemu-arm-static
 
 chroot_setup "$chrootdir" || die "failed to setup chroot %s" "$chrootdir"
 chroot_add_resolv_conf "$chrootdir" || die "failed to setup resolv.conf"
+chroot_add_hosts "$chrootdir" || die "failed to setup hosts"
+
 [ "$ARCH" == "" ] && detect_arch
 
 if [ "$ARCH" == "armv7hl" ]; then
