@@ -1,3 +1,13 @@
+fed-artik-tools (1.2.2) UNRELEASED; urgency=medium
+
+  * add conf file option to fed-artik-build
+  * update imgcreate tool to copy /etc/hosts into chroot
+  * add bind mount for /etc/hosts
+  * build: support multiple Source tag for fedora git
+  * buildsys: bugfix: revise USE_OFFICIAL_REPO
+
+ -- Chanho Park <chanho61.park@samsung.com>  Mon, 25 Jul 2016 10:47:46 +0900
+
 fed-artik-tools (1.2.1) UNRELEASED; urgency=medium
 
   * support fedora git build
