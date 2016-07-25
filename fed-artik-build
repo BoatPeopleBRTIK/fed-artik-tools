@@ -29,6 +29,7 @@ usage() {
 
 	-h              Print this help message
 	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
+	-C conf		Build configurations(If not specified, use default .fed-artik-build.conf
 	-A ARCH		Build Architecture. armv7hl
 	--include-all	uncommitted changes and untracked files would be
 	                included while generating tar ball
@@ -51,6 +52,9 @@ parse_options()
 			-B|--buildroot)
 				BUILDROOT=`readlink -e "$2"`
 				[ ! -d $BUILDROOT ] && die "cannot find buildroot"
+				shift ;;
+			-C)
+				BUILDCONFIG="$2"
 				shift ;;
 			-A|--arch)
 				BUILDARCH="$2"
@@ -224,12 +228,13 @@ detect_fedora_git()
 	fi
 }
 
+parse_options "$@"
+
 BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
+parse_config $BUILDCONFIG
 
 BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
-parse_config $BUILDCONFIG
-parse_options "$@"
 
 BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT
