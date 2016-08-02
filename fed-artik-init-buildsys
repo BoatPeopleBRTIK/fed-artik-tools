@@ -9,6 +9,7 @@ ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-c
 USE_DISTCC=0
 IMPORT_ROOTFS=
 HOSTS=/etc/hosts
+NO_PROXY=
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -23,6 +24,7 @@ usage() {
 	-f Fedora_Ver	Fedora version(Default: f22)
 	--official-repo	Use official repository instead of meta repository
 	--distcc	Use distcc to accelerate build
+	--no-proxy list	No proxy
 	-I ROOTFS	Import fedora rootfs
 EOF
 	exit 0
@@ -50,6 +52,9 @@ parse_options()
 				shift ;;
 			-I)
 				IMPORT_ROOTFS="$2"
+				shift ;;
+			--no-proxy)
+				NO_PROXY="$2"
 				shift ;;
 			-H)
 				HOSTS="$2"
@@ -144,6 +149,11 @@ else
 fi
 
 copy_qemu $SCRATCH_ROOT $BUILDARCH
+
+if [ "$NO_PROXY" != "" ]; then
+	append_command "export no_proxy=$NO_PROXY"
+fi
+
 install_essential_packages
 install_rpmfusion_free
 setup_initial_directory

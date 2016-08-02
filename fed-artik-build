@@ -12,6 +12,7 @@ CLEAN_REPOS_AND_EXIT=false
 FEDORA_GIT=false
 DOWNLOAD_SOURCE=false
 HOSTS=/etc/hosts
+NO_PROXY=
 
 SRC_DIR=/root/rpmbuild/SOURCES
 SPEC_DIR=/root/rpmbuild/SPECS
@@ -39,6 +40,7 @@ usage() {
 	--spec SPECFILE	specify a spec file to use. It should be a file name
 	                that this tool will find it in packaging dir
 	--clean-repos	Clean up repo directory before build
+	--no-proxy list	No proxy
 EOF
 	exit 0
 }
@@ -76,6 +78,9 @@ parse_options()
 			--clean-repos-and-exit)
 				CLEAN_REPOS=true
 				CLEAN_REPOS_AND_EXIT=true
+				shift ;;
+			--no-proxy)
+				NO_PROXY="$2"
 				shift ;;
 			-H)
 				HOSTS="$2"
@@ -177,7 +182,13 @@ run_rpmbuild()
 	local scratch_root=$1
 	local local_repo=$2
 	local spec_base=$(basename "$SPECFILE")
-	local build_cmd="rm -rf /var/cache/dnf/local*; dnf makecache;"
+	local build_cmd=
+
+	if [ "$NO_PROXY" != "" ]; then
+		build_cmd+="export no_proxy=$NO_PROXY;"
+	fi
+
+	build_cmd="rm -rf /var/cache/dnf/local*; dnf makecache;"
 	if $DOWNLOAD_SOURCE; then
 		build_cmd+="spectool -g -R $SRC_DIR/$spec_base;"
 	fi
