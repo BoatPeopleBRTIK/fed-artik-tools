@@ -3,6 +3,7 @@
 BUILDCONFIG="~/.fed-artik-build.conf"
 BUILDROOT=
 BUILDARCH=armv7hl
+HOSTS=/etc/hosts
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -25,4 +26,4 @@ eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
 
-sudo -H $SCRIPT_DIR/chroot_fedora $@ -b $LOCAL_REPO $SCRATCH_ROOT
+sudo -H $SCRIPT_DIR/chroot_fedora $@ -H $HOSTS -b $LOCAL_REPO $SCRATCH_ROOT

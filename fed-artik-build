@@ -11,6 +11,7 @@ CLEAN_REPOS=false
 CLEAN_REPOS_AND_EXIT=false
 FEDORA_GIT=false
 DOWNLOAD_SOURCE=false
+HOSTS=/etc/hosts
 
 SRC_DIR=/root/rpmbuild/SOURCES
 SPEC_DIR=/root/rpmbuild/SPECS
@@ -31,6 +32,7 @@ usage() {
 	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
 	-C conf		Build configurations(If not specified, use default .fed-artik-build.conf
 	-A ARCH		Build Architecture. armv7hl
+	-H [hosts]	Hosts file to bind /etc/hosts
 	--include-all	uncommitted changes and untracked files would be
 	                included while generating tar ball
 	--define DEFINE	define macro X with value Y with format "X Y"
@@ -74,6 +76,9 @@ parse_options()
 			--clean-repos-and-exit)
 				CLEAN_REPOS=true
 				CLEAN_REPOS_AND_EXIT=true
+				shift ;;
+			-H)
+				HOSTS="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -182,7 +187,7 @@ run_rpmbuild()
 	fi
 	build_cmd+=" $SRC_DIR/$spec_base"
 
-	sudo -H $SCRIPT_DIR/chroot_fedora -b $local_repo $scratch_root "$build_cmd"
+	sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $local_repo $scratch_root "$build_cmd"
 }
 
 copy_output_rpms()

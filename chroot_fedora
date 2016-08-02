@@ -7,6 +7,7 @@ POST_CHROOT_CMD=
 USER=
 EXECUTE_COMMANDS=""
 ARCH=
+HOSTS=/etc/hosts
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -20,6 +21,7 @@ usage() {
 	-r [script]	Specify host script after chroot
 	-u [user]	Login to user
 	-A [Arch]	Target Architecture(armv7hl, aarch64)
+	-H [hosts]	Hosts file to bind /etc/hosts
 
 	If 'command' is unspecified, ${0##*/} will launch /bin/sh.
 
@@ -28,7 +30,7 @@ EOF
 
 function parse_args()
 {
-	local opts=`getopt -o "hb:s:r:u:" -- "$@"`
+	local opts=`getopt -o "hb:s:r:u:H:" -- "$@"`
 	eval set -- "$opts"
 
 	while true; do
@@ -39,6 +41,7 @@ function parse_args()
 			-r ) POST_CHROOT_CMD=$2; shift 2 ;;
 			-u ) USER=$2; shift 2;;
 			-A ) ARCH=$2; shift 2;;
+			-H ) HOSTS=$2; shift 2;;
 			-- )
 				chrootdir=$2;
 				shift 2
@@ -184,8 +187,9 @@ chroot_add_resolv_conf() {
 
 chroot_add_hosts() {
 	local chrootdir=$1 hosts=$1/etc/hosts
+	local local_hosts=$(readlink -f $HOSTS)
 
-	chroot_add_mount /etc/hosts "$hosts" --bind
+	chroot_add_mount $local_hosts "$hosts" --bind
 }
 
 check_create_user()

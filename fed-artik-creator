@@ -8,6 +8,7 @@ COPY_DIR=
 COPY_KICKSTART_DIR=
 COPY_RPM_DIR=
 KS_FILE=
+HOSTS=/etc/hosts
 
 CHROOT_OUTPUT_DIR=/root/fed_artik_output
 
@@ -20,6 +21,7 @@ usage() {
 	-h              Print this help message
 	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
 	-o OUTPUT_DIR	Output directory
+	-H [hosts]	Hosts file to bind /etc/hosts
 	--output-file	Output file name
 	--copy-dir	Copy directory under kickstart file
 	--copy-rpm-dir	Copy all rpms from the directory
@@ -59,6 +61,9 @@ parse_options()
 				shift ;;
 			--ks-file)
 				KS_FILE="$2"
+				shift ;;
+			-H)
+				HOSTS="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -178,7 +183,7 @@ run_creator()
 	local build_cmd+="dnf -y --best --allowerasing install appliance-tools python-imgcreate;"
 	local build_cmd+="cd $chroot_output_dir; ./run_appliance_creator.sh $ks_file $chroot_output_dir $ks_name $FEDORA_VER"
 
-	sudo -H $SCRIPT_DIR/chroot_fedora -b $local_repo $scratch_root "$build_cmd"
+	sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $local_repo $scratch_root "$build_cmd"
 }
 
 copy_output_file()

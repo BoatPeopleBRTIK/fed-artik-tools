@@ -8,6 +8,7 @@ EXECUTE_COMMANDS=""
 ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core createrepo appliance-tools automake gcc-c++"
 USE_DISTCC=0
 IMPORT_ROOTFS=
+HOSTS=/etc/hosts
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -18,6 +19,7 @@ usage() {
 	-h              Print this help message
 	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
 	-A ARCH		Build Architecture. armv7hl
+	-H [hosts]	Hosts file to bind /etc/hosts
 	-f Fedora_Ver	Fedora version(Default: f22)
 	--official-repo	Use official repository instead of meta repository
 	--distcc	Use distcc to accelerate build
@@ -48,6 +50,9 @@ parse_options()
 				shift ;;
 			-I)
 				IMPORT_ROOTFS="$2"
+				shift ;;
+			-H)
+				HOSTS="$2"
 				shift ;;
 			*)
 				shift ;;
@@ -145,6 +150,6 @@ setup_initial_directory
 [ "$USE_DISTCC" == "1" ] && setup_distcc
 
 echo "### You may need to wait long time(>5 minutes) to synchronize rpmdb"
-sudo -H $SCRIPT_DIR/chroot_fedora $SCRATCH_ROOT "$EXECUTE_COMMANDS"
+sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS $SCRATCH_ROOT "$EXECUTE_COMMANDS"
 
 echo "### fedora artik build system has been created"
