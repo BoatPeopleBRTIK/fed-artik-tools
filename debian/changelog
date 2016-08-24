@@ -1,3 +1,10 @@
+fed-artik-tools (1.2.4) UNRELEASED; urgency=medium
+
+  * creator: append no_proxy variable
+  * qemu: fix lseek error beyond 2GB+
+
+ -- Chanho Park <chanho61.park@samsung.com>  Wed, 24 Aug 2016 21:11:58 +0900
+
 fed-artik-tools (1.2.3) UNRELEASED; urgency=medium
 
   * support no_proxy inside chroot
