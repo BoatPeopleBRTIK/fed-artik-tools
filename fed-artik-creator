@@ -186,7 +186,7 @@ run_creator()
 	local build_cmd=
 
 	if [ "$NO_PROXY" != "" ]; then
-		build_cmd+="export no_proxy=$NO_PROXY;"
+		build_cmd+="export no_proxy=$NO_PROXY,$no_proxy;"
 	fi
 
 	build_cmd+="rm -rf /var/cache/dnf/local*; dnf makecache;"
