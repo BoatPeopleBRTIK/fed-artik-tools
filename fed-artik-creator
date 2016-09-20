@@ -21,6 +21,7 @@ usage() {
 
 	-h              Print this help message
 	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
+	-C conf		Build configurations(If not specified, use default .fed-artik-build.conf
 	-o OUTPUT_DIR	Output directory
 	-H [hosts]	Hosts file to bind /etc/hosts
 	--output-file	Output file name
@@ -44,6 +45,9 @@ parse_options()
 			-B|--buildroot)
 				BUILDROOT=`readlink -e "$2"`
 				[ ! -d $BUILDROOT ] && die "cannot find buildroot"
+				shift ;;
+			-C)
+				BUILDCONFIG=`readlink -e "$2"`
 				shift ;;
 			-o)
 				OUTPUT_DIR=`readlink -m "$2"`
@@ -229,13 +233,17 @@ _EOF_
 	ls -l $output_dir/$output_name.gz
 }
 
-BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
-BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
-eval BUILDROOT=$BUILDROOT
+if [ "BUILDCONFIG" == "~/.fed-artik-build.conf" ]; then
+	BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
+fi
+
+parse_options "$@"
 parse_config $BUILDCONFIG
 parse_options "$@"
 
-BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+if [ "BUILDROOT" == "~/*" ]; then
+	BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+fi
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS

@@ -58,7 +58,7 @@ parse_options()
 				[ ! -d $BUILDROOT ] && die "cannot find buildroot"
 				shift ;;
 			-C)
-				BUILDCONFIG="$2"
+				BUILDCONFIG=`readlink -e "$2"`
 				shift ;;
 			-A|--arch)
 				BUILDARCH="$2"
@@ -244,10 +244,13 @@ detect_fedora_git()
 	fi
 }
 
-parse_options "$@"
+if [ "BUILDCONFIG" == "~/.fed-artik-build.conf" ]; then
+	BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
+fi
 
-BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
+parse_options "$@"
 parse_config $BUILDCONFIG
+parse_options "$@"
 
 BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 eval BUILDROOT=$BUILDROOT

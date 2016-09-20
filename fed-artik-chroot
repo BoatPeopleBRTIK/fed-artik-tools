@@ -12,18 +12,53 @@ usage() {
 	usage: ${0##*/}
 
 	-h              Print this help message
-	-b [directory]	Specify bind mount directory
-	-u [user]	Login to user
+	-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
+	-C conf		Build configurations(If not specified, use default .fed-artik-build.conf
+	-A ARCH		Build Architecture. armv7hl
+	-H [hosts]	Hosts file to bind /etc/hosts
 EOF
 	exit 0
 }
 
-BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
-parse_config $BUILDCONFIG
+parse_options()
+{
+	for opt in "$@"
+	do
+		case "$opt" in
+			-h|--help)
+				usage
+				shift ;;
+			-B|--buildroot)
+				BUILDROOT=`readlink -e "$2"`
+				shift ;;
+			-C)
+				BUILDCONFIG=`readlink -e "$2"`
+				shift ;;
+			-A|--arch)
+				BUILDARCH="$2"
+				shift ;;
+			-H)
+				HOSTS="$2"
+				shift ;;
+			*)
+				shift ;;
+		esac
+	done
+}
 
-BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+if [ "BUILDCONFIG" == "~/.fed-artik-build.conf" ]; then
+	BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
+fi
+
+parse_options "$@"
+parse_config $BUILDCONFIG
+parse_options "$@"
+
+if [ "BUILDROOT" == "~/*" ]; then
+	BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+fi
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
 
-sudo -H $SCRIPT_DIR/chroot_fedora $@ -H $HOSTS -b $LOCAL_REPO $SCRATCH_ROOT
+sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $LOCAL_REPO $SCRATCH_ROOT

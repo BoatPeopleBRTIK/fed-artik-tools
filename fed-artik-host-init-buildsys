@@ -94,6 +94,7 @@ USE_OFFICIAL_REPO=0
 __EOF__
 fi
 
+parse_options $@
 parse_config $BUILDCONFIG
 parse_options $@
 
