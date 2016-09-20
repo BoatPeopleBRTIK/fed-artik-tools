@@ -1,8 +1,14 @@
+fed-artik-tools (1.2.6) UNRELEASED; urgency=medium
+
+  * support -C option for all scripts
+
+ -- Chanho Park <chanho61.park@samsung.com>  Tue, 20 Sep 2016 16:26:22 +0900
+
 fed-artik-tools (1.2.5) UNRELEASED; urgency=medium
 
   * creator: support secondary repo url
 
- -- cometzero <cometzero@cometzero-ubuntu>  Tue, 20 Sep 2016 11:46:35 +0900
+ -- Chanho Park <chanho61.park@samsung.com>  Tue, 20 Sep 2016 11:46:35 +0900
 
 fed-artik-tools (1.2.4) UNRELEASED; urgency=medium
 
