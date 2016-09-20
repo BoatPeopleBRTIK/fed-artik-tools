@@ -97,9 +97,10 @@ setup_remote_repo()
 {
 	local scratch_root=$1
 	local remote_repo=$2
-sudo sh -c "cat > $scratch_root/etc/yum.repos.d/artik.repo << __EOF__
+	local repo_name=$3
+sudo sh -c "cat > $scratch_root/etc/yum.repos.d/${repo_name}.repo << __EOF__
 [artik]
-name=Fedora-artik
+name=Fedora-${repo_name}
 baseurl=${remote_repo}
 enabled=1
 gpgcheck=0
@@ -154,6 +155,9 @@ prepare_local_repo()
 	sudo sh -c "cp -f $ks_file $out_dir"
 	if [ "$REPO_URL" != "" ]; then
 		sudo sed -i "1s|^|repo --name=artik --baseurl=${REPO_URL} --cost=2\n&|" $out_dir/$ks_base
+	fi
+	if [ "$REPO_URL2" != "" ]; then
+		sudo sed -i "1s|^|repo --name=artik2 --baseurl=${REPO_URL2} --cost=3\n&|" $out_dir/$ks_base
 	fi
 	sudo sed -i "1s|^|repo --name=local --baseurl=file:\/\/${local_repo} --cost=1\n&|" $out_dir/$ks_base
 }
@@ -254,7 +258,10 @@ copy_creator_rpm $PREBUILT_RPM_DIR $LOCAL_REPO
 
 setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 if [ "$REPO_URL" != "" ]; then
-	setup_remote_repo $SCRATCH_ROOT $REPO_URL
+	setup_remote_repo $SCRATCH_ROOT $REPO_URL artik
+fi
+if [ "$REPO_URL2" != "" ]; then
+	setup_remote_repo $SCRATCH_ROOT $REPO_URL2 artik2
 fi
 prepare_creator_directory $SCRATCH_ROOT $CHROOT_OUTPUT_DIR
 if [ "$COPY_KICKSTART_DIR" != "" ]; then
