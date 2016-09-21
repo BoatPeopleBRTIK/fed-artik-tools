@@ -97,6 +97,10 @@ install_essential_packages()
 install_rpmfusion_free()
 {
 	append_command "dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-${FEDORA_VER}.noarch.rpm"
+	if [ "$USE_OFFICIAL_REPO" == "1" ]; then
+		append_command "sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/rpmfusion*"
+		append_command "sed -i 's/^#baseurl/baseurl/g' /etc/yum.repos.d/*"
+	fi
 }
 
 setup_initial_directory()
