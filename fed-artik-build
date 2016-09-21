@@ -244,7 +244,7 @@ detect_fedora_git()
 	fi
 }
 
-if [ "BUILDCONFIG" == "~/.fed-artik-build.conf" ]; then
+if [ "$BUILDCONFIG" == "~/.fed-artik-build.conf" ]; then
 	BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
 fi
 
@@ -252,11 +252,11 @@ parse_options "$@"
 parse_config $BUILDCONFIG
 parse_options "$@"
 
-BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+if [ "$BUILDROOT" == "~/*" ]; then
+	BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+fi
 eval BUILDROOT=$BUILDROOT
 
-BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
-eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
 

@@ -98,7 +98,9 @@ parse_options $@
 parse_config $BUILDCONFIG
 parse_options $@
 
-BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+if [ "$BUILDROOT" == "~/*" ]; then
+	BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
+fi
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 

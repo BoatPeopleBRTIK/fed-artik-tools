@@ -233,7 +233,7 @@ _EOF_
 	ls -l $output_dir/$output_name.gz
 }
 
-if [ "BUILDCONFIG" == "~/.fed-artik-build.conf" ]; then
+if [ "$BUILDCONFIG" == "~/.fed-artik-build.conf" ]; then
 	BUILDCONFIG="${BUILDCONFIG/#\~/$(eval echo ~$SUDO_USER)}"
 fi
 
@@ -241,7 +241,7 @@ parse_options "$@"
 parse_config $BUILDCONFIG
 parse_options "$@"
 
-if [ "BUILDROOT" == "~/*" ]; then
+if [ "$BUILDROOT" == "~/*" ]; then
 	BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 fi
 eval BUILDROOT=$BUILDROOT
