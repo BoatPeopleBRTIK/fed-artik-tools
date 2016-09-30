@@ -69,6 +69,17 @@ parse_options()
 	done
 }
 
+prevent_update_rpm()
+{
+	local scratch_root=$1
+	local exclude_pkgs="sbc,appliance-tools,python-imgcreate,livecd-tools"
+	check_exist=`grep "exclude=$exclude_pkgs" $scratch_root/etc/yum.repos.d/fedora-updates.repo`
+
+	if [ "$check_exist" == "" ]; then
+		sudo sed -i 's/metalink.*/&\nexclude=$exclude_pkgs/' $scratch_root/etc/yum.repos.d/fedora-updates.repo
+	fi
+}
+
 change_official_repo()
 {
 	local scratch_root=$1
@@ -154,6 +165,8 @@ if [ "$IMPORT_ROOTFS" != "" ]; then
 	sudo rm -rf $SCRATCH_ROOT/*
 	sudo tar xf $IMPORT_ROOTFS -C $SCRATCH_ROOT
 fi
+
+prevent_update_rpm $SCRATCH_ROOT
 
 if [ "$USE_OFFICIAL_REPO" == "1" ]; then
 	change_official_repo $SCRATCH_ROOT
