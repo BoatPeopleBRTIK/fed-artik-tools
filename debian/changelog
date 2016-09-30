@@ -1,3 +1,12 @@
+fed-artik-tools (1.2.7) UNRELEASED; urgency=medium
+
+  * update image creation tools
+  * prevent update image creation tool by fedora update
+  * change official repo after rpmfusion repo installation
+  * correct build config variable
+
+ -- Chanho Park <chanho61.park@samsung.com>  Fri, 30 Sep 2016 15:01:31 +0900
+
 fed-artik-tools (1.2.6) UNRELEASED; urgency=medium
 
   * support -C option for all scripts
