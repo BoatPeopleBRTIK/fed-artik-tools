@@ -76,7 +76,7 @@ prevent_update_rpm()
 	check_exist=`grep "exclude=$exclude_pkgs" $scratch_root/etc/yum.repos.d/fedora-updates.repo`
 
 	if [ "$check_exist" == "" ]; then
-		sudo sed -i 's/metalink.*/&\nexclude=$exclude_pkgs/' $scratch_root/etc/yum.repos.d/fedora-updates.repo
+		sudo sed -i "s/metalink.*/&\nexclude=$exclude_pkgs/" $scratch_root/etc/yum.repos.d/fedora-updates.repo
 	fi
 }
 
