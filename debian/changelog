@@ -1,3 +1,10 @@
+fed-artik-tools (1.2.9) UNRELEASED; urgency=medium
+
+  * chroot: correct use of envirionment variable
+  * correct sed operation to exclude package
+
+ -- Chanho Park <chanho61.park@samsung.com>  Tue, 18 Oct 2016 22:42:33 +0900
+
 fed-artik-tools (1.2.8) UNRELEASED; urgency=medium
 
   * prebuilt: update livecd/appliance tools
