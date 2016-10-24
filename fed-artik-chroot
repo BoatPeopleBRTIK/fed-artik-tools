@@ -54,7 +54,7 @@ parse_options "$@"
 parse_config $BUILDCONFIG
 parse_options "$@"
 
-if [ "$BUILDROOT" == "~/*" ]; then
+if [[ "$BUILDROOT" == ~\/* ]]; then
 	BUILDROOT="${BUILDROOT/#\~/$(eval echo ~$SUDO_USER)}"
 fi
 eval BUILDROOT=$BUILDROOT
