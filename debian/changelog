@@ -1,3 +1,11 @@
+fed-artik-tools (1.2.10) UNRELEASED; urgency=medium
+
+  * change artik repo name to avoid official artik repo
+  * fix testing BUILDROOT path
+  * fix test BUILDCONFIG path
+
+ -- Chanho Park <chanho61.park@samsung.com>  Tue, 01 Nov 2016 23:33:46 +0900
+
 fed-artik-tools (1.2.9) UNRELEASED; urgency=medium
 
   * chroot: correct use of envirionment variable
