@@ -168,9 +168,10 @@ setup_remote_repo()
 {
 	local scratch_root=$1
 	local remote_repo=$2
-sudo sh -c "cat > $scratch_root/etc/yum.repos.d/artik.repo << __EOF__
-[artik]
-name=Fedora-artik
+	local repo_name=$3
+sudo sh -c "cat > $scratch_root/etc/yum.repos.d/${repo_name}.repo << __EOF__
+[${repo_name}]
+name=Fedora-${repo_name}
 baseurl=${remote_repo}
 enabled=1
 gpgcheck=0
@@ -281,7 +282,10 @@ sudo cp -f $SPECDIR/* $SCRATCH_ROOT/$SRC_DIR
 
 setup_local_repo $SCRATCH_ROOT $LOCAL_REPO
 if [ "$REPO_URL" != "" ]; then
-	setup_remote_repo $SCRATCH_ROOT $REPO_URL
+	setup_remote_repo $SCRATCH_ROOT $REPO_URL artik_remote
+fi
+if [ "$REPO_URL2" != "" ]; then
+	setup_remote_repo $SCRATCH_ROOT $REPO_URL2 artik2_remote
 fi
 run_rpmbuild $SCRATCH_ROOT $LOCAL_REPO
 copy_output_rpms $SCRATCH_ROOT $LOCAL_REPO $BUILDARCH
