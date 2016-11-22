@@ -1,223 +1,148 @@
-# ARTIK Fedora Chroot Environment
+# ARTIK Fedora ARTIK Build System
 ## Contents
 1. [Introduction](#1-introduction)
 2. [Environment Setup](#2-environment-setup)
-3. [Chroot](#3-chroot)
-4. [Known issues](#4-known-issues)
-5. [Appendix](#5-appendix)
+3. [Preparation to build](#3-preparation-to-build)
+4. [Build](#4-build)
 
 ## 1. Introduction
-This repository helps to create an ARTIK fedora arm chroot environment.
-You can build or install a program without ARM native machine. It uses
-qemu-arm-static user emulation and binfmt technology.
+This repository helps to create an ARTIK fedora package through
+arm chroot environment. You can build or install a program without
+ARM native machine. It uses qemu-arm-static user emulation and binfmt
+technology.
 
 ---
 ## 2. Environment Setup
 ### Host Linux PC
 Ubuntu 64bit 14.04 or higher version
+### Download fed-artik-tools package from release
+Go to release tab and download the latest release package
 ### Package installation
-sudo apt-get install build-essential qemu-user-static libguest-tools xz
-### Directory setup
-+ I assume you work this setup in the /opt/fedora directory
 ```
-mkdir /opt/fedora
-sudo chown -R {YOUR_ID}:{YOUR_GROUP} /opt/fedora
-```
-+ Move the helper scripts(extract_fedora.sh, chroot_fedora.sh) into /opt/fedora/
-```
-cp *.sh /opt/fedora/
-cd /opt/fedora
-```
-### Prepare a fedora arm root file system
-+ You can retrieve the rootfs from artik10_sdfuse.img and put it into /opt/fedora directory
-+ Create a destination directory for qemu chroot
-```
-mkdir /opt/fedora/fedora_root
-```
-+ Extract the rootfs using extract_fedora.sh
-```
-sudo ./extract_fedora.sh artik10_sdfuse.img ./fedora_root
-```
-+ Environment setup for chroot
-sudo visudo (or you can edit /etc/sudoers using your editor)
-```
-Defaults        always_set_home
-Defaults        env_keep += "http_proxy"
-Defaults        env_keep += "https_proxy"
-Defaults        env_keep += "no_proxy"
+sudo apt-get install build-essential qemu-user-static createrepo libguestfs-tools git sudo
+sudo dpkg -i fed-artik-tools_1.2.10_amd64.deb
 ```
 
 ---
-## 3. Chroot
-### Chroot setup
-arm binary can be emulated through qemu-arm-static and binfmt hook.
-Copy the attached "prebuilt/qemu-arm-static" file into "fedora_root/usr/bin/qemu-arm-static"
+## 3. Preparation to build
+### Initialize host environment
++ Run fed-artik-host-init-buildsys with fedora arm tarball(ex: rootfs.tar.gz)
 ```
-sudo cp prebuilt/qemu-arm-static fedora_root/usr/bin/qemu-arm-static
-```
-+ If you want to build the qemu-arm-static, please refer appendix
+fed-artik-host-init-buildsys -I rootfs.tar.gz
 
-### Chroot into fedora_root
+Host setting is done
+BUILDROOT -> /home/cometzero/FED_ARTIK_ROOT
+SCRATCH_ROOT -> /home/cometzero/FED_ARTIK_ROOT/BUILDROOT
+Local Repo -> /home/cometzero/FED_ARTIK_ROOT/repos/f24/armv7hl/RPMS
 ```
-sudo ./chroot_fedora.sh ./fedora_root
++ You can find the setting from ~/.fed-artik-build.conf
+If you want to change the configurations, you should re-create environment through fed-artik-host-init-buildsys with -C option
+The default configurations are below:
+```
+BUILDROOT=~/FED_ARTIK_ROOT
+BUILDARCH=armv7hl
+FEDORA_VER=24
+USE_DISTCC=0
+USE_OFFICIAL_REPO=0
+```
+### Initialize chroot environment
++ This command will initialize fedora arm chroot environment(~/FED_ARTIK_ROOT/BUILDROOT) before build.
++ This command will require long time to synchronize rpmdb. You may wait about 5 minutes.
+```
+$ fed-artik-init-buildsys
+### You may need to wait long time(>5 minutes) to synchronize rpmdb
 Disable sslverify option of fedora
-root@cometzero-ubuntu:/$
+cachedir: /var/cache/dnf
+DNF version: 1.1.6
+RPM Fusion for Fedora 24 - Free - Updates 6.4 MB/s | 166 kB 00:00
+not found deltainfo for: RPM Fusion for Fedora 24 - Free - Updates
+not found updateinfo for: RPM Fusion for Fedora 24 - Free - Updates
+Fedora 24 - armhfp 16 MB/s | 37 MB 00:02
+not found deltainfo for: Fedora 24 - armhfp
+not found updateinfo for: Fedora 24 - armhfp
+.... < Snip >...
+Complete!
+group persistor: saving.
+### fedora artik build system has been created
 ```
-If you want to login in a specific user account automatically, please use below command:
-```
-sudo ./chroot_fedora.sh ./fedora_root -u $USER
-[cometzero@cometzero-ubuntu /]#
-```
-The shell is able to log in by your Host's account and /home/{YOUR_ID} will be automatically connected to your chroot directory.
-You can also bind your directory inside of chroot
++ Now, you can build a source code with rpmbuild and spec file
 
-### To exit from chroot
+--
+## 4. Build
+### Build an rpm source package
++ First of all, fed-artik-build will generate a rpm file from source and spec file. You should write a spec file and put into ./packaging/ directory. The build is quite slow because it emulates arm environment.
++ If you want to write your own spec file, please refer a guide from fedora
+https://fedoraproject.org/wiki/How_to_create_an_RPM_package
++ The fed-artik-build identifies below directory structure as its git repository.
+<pre>
+| GIT root / sources
+├── packaging
+│   └── libdrm.spec
+</pre>
+The tool will archive the git source files as source tarball which will be identified by rpmbuild.
+It will copy the tarball and the spec file inside the chroot environment.
++ Run the fed-artik-build in your git source directory. Below command will not include uncommitted changes.
 ```
-root@cometzero-ubuntu:/$ exit
-exit
+$ fed-artik-build
+[sudo] password for cometzero: Disable sslverify option of fedora
+Spawning worker 0 with 2 pkgs
+Spawning worker 1 with 2 pkgs
+Spawning worker 2 with 2 pkgs
+Spawning worker 3 with 2 pkgs
+Spawning worker 4 with 2 pkgs
+Spawning worker 5 with 2 pkgs
+Spawning worker 6 with 2 pkgs
+Spawning worker 7 with 2 pkgs
+Workers Finished
+Saving Primary metadata
+Saving file lists metadata
+Saving other metadata
+Generating sqlite DBs
+Sqlite DBs complete
+Fedora-Local 1.8 MB/s | 7.6 kB 00:00
+Metadata cache created.
+umask 022
+cd /root/rpmbuild/BUILD
+cd nx-renderer-0.0.1
+/usr/bin/rm -rf /root/rpmbuild/BUILDROOT/nx-renderer-0.0.1-0.arm
+exit 0
+Build is done. Please find your rpm from /home/cometzero/FED_ARTIK_ROOT/repos/f24/armv7hl/RPMS
+```
+You can find your rpm from your directory(~/FED_ARTIK_ROOT/repos/f24/armv7hl/RPMS)
++ If you want to include uncommitted changes on your git stash, please run with --include-all option
+```
+$ fed-artik-build --include-all
 ```
 
-### To add bind directories between Host PC and chroot
-+ Use -b option to mount specific directory inside chroot environment
-+ The directories will be automatically mounted inside chroot
+### Jump to chroot environment
++ If you want to enter chroot, please use the "fed-artik-chroot" command
 ```
-sudo ./chroot_fedora.sh -b /opt/artik -b /opt/data rootfs
-```
--> "/opt/artik" and "/opt/data" directory will be mounted in the chroot's "/opt/artik" and "/opt/data" directory
-
-### Pre-command before jumping to chroot environment
-+ You can copy some files using this command before chroot
-+ You can use -s option,
-```
-sudo ./chroot_fedora.sh -s copy.sh rootfs
-```
-Above command will run copy.sh before chroot
-### Post-command after exiting chroot
-+ You can copy output files using this command after chroot
-+ You can  use -r option,
-```
-sudo ./chroot_fedora.sh -r copy.sh rootfs
-```
-Above command will run copy.sh after chroot
-### Run a command instead of login
-You can run a command like below
-```
-sudo ./chroot_fedora.sh rootfs ls
-```
-Above command will run "ls" command instead of login
-
-### Set up sudo environment
-To use "sudo" command, you'll need to install "sudo" package and configure your account.
-+ Enter fedora chroot using chroot_fedora.sh and change root account
-```
-cometzero@cometzero-ubuntu:/$ su
-Password:  <- “root”
-qemu: Unsupported syscall: 311
+$ fed-artik-chroot
+[sudo] password for cometzero:
+Disable sslverify option of fedora
 [root@cometzero-ubuntu /]#
 ```
-+ Install sudo package(If your network does not allow https, please refer known issue.)
-```
-dnf install sudo
-```
-+ Run visudo and add your account and environment settings
-```
-visudo
-Defaults        always_set_home
-Defaults        env_keep += "http_proxy"
-Defaults        env_keep += "https_proxy"
-Defaults        env_keep += "no_proxy"
-YOUR_ID         ALL=(ALL)       NOPASSWD:       ALL
-```
-Now, your account can use "sudo" command like below:
-```
-sudo dnf install vim
-```
 
----
-## 4. Known issues
-### git clone is hang inside chroot
-+ Do not clone the repository inside chroot environment
-+ Please download the source in Host environment
-### qemu: Unsupported syscall: 311
-+ Please ignore this message
-### If your network setting doesn?t allow https connection, you have to change repository from https to http
-+ Run below command inside chroot
+### Generate a fedora rootfs(Optional)
++ This is only for a person who want to make own fedora rootfs. It takes long time(>=10 minutes) to make it.
++ You will need spin-kickstarts source codes and prebuilt rpm files of artik specific packages.
 ```
-sed -i 's/metalink/#metalink/g' /etc/yum.repos.d/fedora*
-sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/rpmfusion*
-sed -i 's/#baseurl/baseurl/g' /etc/yum.repos.d/*
-```
-### 'dnf install' was stopped or hang
-+ Please wait 2 or 3 minutes to update rpmdb.
-```
-dnf install sudo
-RPM Fusion for Fedora 22 - Free - Updates                       258 kB/s | 166 kB     00:00
-Fedora 22 - armhfp                                               15 MB/s |  37 MB     00:02
-Fedora 22 - armhfp - Updates                                    7.7 MB/s |  20 MB     00:02
-```
----
-## 5. Appendix
-### 5.1 Set up distcc to accelerate build
-#### Host Machine
-+ Download linaro cross compiler
-```
-wget https://releases.linaro.org/components/toolchain/binaries/latest-5/arm-linux-gnueabihf/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf.tar.xz
-tar xf gcc-linaro*.tar.xz
-sudo mv gcc-linaro-* /usr/local
-sudo ln -sf /usr/local/gcc-linaro-* /usr/local/gcc
-```
-+ Install distcc
-```
-sudo apt-get install distcc
-sudo mkdir -p /usr/local/lib/distcc
-cd /usr/local/lib/distcc
-sudo ln -sf /usr/local/gcc-linaro-arm/bin/arm-linux-gnueabihf-gcc gcc
-sudo ln -sf /usr/local/gcc-linaro-arm/bin/arm-linux-gnueabihf-gcc g++
-sudo ln -sf /usr/local/gcc-linaro-arm/bin/arm-linux-gnueabihf-gcc cc
-sudo ln -sf /usr/local/gcc-linaro-arm/bin/arm-linux-gnueabihf-gcc c++
-```
-+ Setting /etc/default/distcc(Change below setting and add PATH for distcc)
-```
-sudo vi /etc/default/distcc
-STARTDISTCC="true"
-JOBS="10"
-ZEROCONF="true"
-PATH=/usr/local/lib/distcc:$PATH
-```
-+ Restart distcc service
-```
-sudo service distcc restart
-```
+usage: fed-artik-creator [options] kickstart
 
-#### Fedora arm chroot
-+ Install distcc and create symbolic links
+-h              Print this help message
+-B BUILDROOT	BUILDROOT directory, if not specified read from ~/.fed-artik-build.conf
+-C conf		Build configurations(If not specified, use default .fed-artik-build.conf
+-o OUTPUT_DIR	Output directory
+-H [hosts]	Hosts file to bind /etc/hosts
+--output-file	Output file name
+--copy-dir	Copy directory under kickstart file
+--copy-rpm-dir	Copy all rpms from the directory
+--copy-kickstart-dir	Copy whole kickstart directory
+--ks-file KS	Kickstart file
+--no-proxy list	No proxy
 ```
-dnf install distcc
-cd /usr/local/bin
-ln -sf /usr/bin/distcc gcc
-ln -sf /usr/bin/distcc g++
-ln -sf /usr/bin/distcc cc
-ln -sf /usr/bin/distcc c++
-ln -sf /usr/bin/distcc cpp
+To build a fedora rootfs,
 ```
-+ Set up distcc host IP
-```
-vi /etc/distcc/hosts
-127.0.0.1
-```
-
-### 5.2 Build qemu-static-arm
-+ Download qemu source and build
-```
-git clone http://git.qemu.org/git/qemu.git
-mkdir qemu.install
-cd qemu
-./configure --static --disable-system --target-list=arm-linux-user --prefix=`pwd`/../qemu.install --disable-libssh2
-make -j8
-make install
-```
-+ Copy the qemu-arm file into fedora_root
-```
-sudo cp qemu.install/bin/qemu-arm fedora_root/usr/bin/qemu-arm-static
-sudo chmod 755 fedora_root/usr/bin/qemu-arm-static
+mkdir output
+fed-artik-creator -o ./output --copy-kickstart-dir ./spin-kickstarts --ks-file ./spin-kickstarts/fedora-arm-artik710.ks
 ```
