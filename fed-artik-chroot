@@ -70,4 +70,4 @@ if [ "$NO_PROXY" != "" ]; then
 	build_cmd+="export no_proxy=$NO_PROXY,$no_proxy;"
 fi
 build_cmd+="/bin/bash"
-sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $LOCAL_REPO $SCRATCH_ROOT $build_cmd
+sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $LOCAL_REPO $SCRATCH_ROOT "$build_cmd"
