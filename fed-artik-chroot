@@ -4,6 +4,7 @@ BUILDCONFIG="~/.fed-artik-build.conf"
 BUILDROOT=
 BUILDARCH=armv7hl
 HOSTS=/etc/hosts
+NO_PROXY=
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -16,6 +17,7 @@ usage() {
 	-C conf		Build configurations(If not specified, use default .fed-artik-build.conf
 	-A ARCH		Build Architecture. armv7hl
 	-H [hosts]	Hosts file to bind /etc/hosts
+	--no-proxy list	No proxy
 EOF
 	exit 0
 }
@@ -40,6 +42,9 @@ parse_options()
 			-H)
 				HOSTS="$2"
 				shift ;;
+			--no-proxy)
+				NO_PROXY="$2"
+				shift ;;
 			*)
 				shift ;;
 		esac
@@ -61,4 +66,8 @@ eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 LOCAL_REPO=$BUILDROOT/repos/$FEDORA_VER/$BUILDARCH/RPMS
 
-sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $LOCAL_REPO $SCRATCH_ROOT
+if [ "$NO_PROXY" != "" ]; then
+	build_cmd+="export no_proxy=$NO_PROXY,$no_proxy;"
+fi
+build_cmd+="/bin/bash"
+sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $LOCAL_REPO $SCRATCH_ROOT $build_cmd
