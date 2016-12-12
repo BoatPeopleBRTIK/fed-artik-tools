@@ -1,3 +1,12 @@
+fed-artik-tools (1.2.11) UNRELEASED; urgency=medium
+
+  * chroot: support no_proxy option
+  * remove --best option of dnf command
+  * add apache 2.0 license
+  * doc: update README.md for github release
+
+ -- Chanho Park <chanho61.park@samsung.com>  Tue, 13 Dec 2016 02:06:43 +0900
+
 fed-artik-tools (1.2.10) UNRELEASED; urgency=medium
 
   * change artik repo name to avoid official artik repo
