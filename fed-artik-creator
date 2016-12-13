@@ -198,7 +198,7 @@ run_creator()
 	fi
 
 	build_cmd+="rm -rf /var/cache/dnf/local*; dnf makecache;"
-	build_cmd+="dnf -y --allowerasing install appliance-tools python-imgcreate;"
+	build_cmd+="dnf -y --best --allowerasing install appliance-tools python-imgcreate;"
 	build_cmd+="cd $chroot_output_dir; ./run_appliance_creator.sh $ks_file $chroot_output_dir $ks_name $FEDORA_VER"
 
 	sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS -b $local_repo $scratch_root "$build_cmd"
