@@ -11,6 +11,7 @@ CLEAN_REPOS=false
 CLEAN_REPOS_AND_EXIT=false
 FEDORA_GIT=false
 DOWNLOAD_SOURCE=false
+USE_CCACHE=0
 HOSTS=/etc/hosts
 NO_PROXY=
 
@@ -192,6 +193,9 @@ run_rpmbuild()
 	build_cmd="rm -rf /var/cache/dnf/local*; dnf makecache;"
 	if $DOWNLOAD_SOURCE; then
 		build_cmd+="spectool -g -R $SRC_DIR/$spec_base;"
+	fi
+	if [ "$USE_CCACHE" == "1" ]; then
+		build_cmd+="export PATH=/usr/lib/ccache:\$PATH;"
 	fi
 	build_cmd+="dnf -y --allowerasing builddep $SRC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
 	if [ "$DEFINE" != "" ]; then

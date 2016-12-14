@@ -7,6 +7,8 @@ BUILDROOT=
 EXECUTE_COMMANDS=""
 ESSENTIAL_PACKAGES="@development-tools fedora-packager rpmdevtools dnf-plugins-core createrepo appliance-tools automake gcc-c++"
 USE_DISTCC=0
+USE_CCACHE=0
+CCACHE_SIZE=10G
 IMPORT_ROOTFS=
 HOSTS=/etc/hosts
 NO_PROXY=
@@ -102,6 +104,12 @@ change_metalink_repo()
 
 install_essential_packages()
 {
+	if [ "$USE_DISTCC" == "1" ]; then
+		ESSENTIAL_PACKAGES+=" distcc"
+	fi
+	if [ "$USE_CCACHE" == "1" ]; then
+		ESSENTIAL_PACKAGES+=" ccache"
+	fi
 	append_command "dnf install -v -y --allowerasing $ESSENTIAL_PACKAGES"
 }
 
@@ -123,7 +131,13 @@ setup_distcc()
 {
 	append_command "cd /usr/local/bin; for f in gcc g++ cc c++ armv7hl-redhat-linux-gnueabi-gcc; do ln -sf /usr/bin/distcc \$f; done"
 	append_command "echo 127.0.0.1 > /etc/distcc/hosts"
-	ESSENTIAL_PACKAGES+=" distcc"
+}
+
+setup_ccache()
+{
+	append_command "cd /usr/lib/ccache; ln -sf ../../bin/ccache armv7hl-redhat-linux-gnueabi-gcc"
+	append_command "ln -sf ../../bin/ccache aarch64-redhat-linux-gnu-gcc"
+	append_command "ccache -M $CCACHE_SIZE"
 }
 
 copy_qemu()
@@ -184,6 +198,7 @@ install_essential_packages
 install_rpmfusion_free
 setup_initial_directory
 [ "$USE_DISTCC" == "1" ] && setup_distcc
+[ "$USE_CCACHE" == "1" ] && setup_ccache
 
 echo "### You may need to wait long time(>5 minutes) to synchronize rpmdb"
 sudo -H $SCRIPT_DIR/chroot_fedora -H $HOSTS $SCRATCH_ROOT "$EXECUTE_COMMANDS"
