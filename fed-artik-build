@@ -197,7 +197,7 @@ run_rpmbuild()
 	if [ "$USE_CCACHE" == "1" ]; then
 		build_cmd+="export PATH=/usr/lib/ccache:\$PATH;"
 	fi
-	build_cmd+="dnf -y --allowerasing builddep $SRC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
+	build_cmd+="dnf -y --best --allowerasing builddep $SRC_DIR/$spec_base; rpmbuild --target=$BUILDARCH -ba"
 	if [ "$DEFINE" != "" ]; then
 		build_cmd+=" --define \"$DEFINE\""
 	fi
