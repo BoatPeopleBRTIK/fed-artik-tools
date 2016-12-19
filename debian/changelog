@@ -1,3 +1,14 @@
+fed-artik-tools (1.2.13) UNRELEASED; urgency=medium
+
+  * exclude update of artik specific packages
+  * build: restore --best option of builddep
+  * support ccache option
+  * creator: revoke --best option during tool installation
+  * update qemu binary from latest src
+  * f25: add prebuilt rpm files for fedora25
+
+ -- Chanho Park <chanho61.park@samsung.com>  Mon, 19 Dec 2016 22:32:40 +0900
+
 fed-artik-tools (1.2.12) UNRELEASED; urgency=medium
 
   * chroot: fix quation guard
