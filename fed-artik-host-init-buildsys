@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BUILDCONFIG="/usr/local/share/fed-artik-tools/.fed-artik-build.conf"
+USE_SPECIFIC_CONF=false
 
 . `dirname "$(readlink -f "$0")"`/fed-artik-common.inc
 
@@ -29,6 +30,7 @@ parse_options()
 				shift ;;
 			-C)
 				BUILDCONFIG="$2"
+				USE_SPECIFIC_CONF=true
 				shift ;;
 			-I)
 				IMPORT_ROOTFS="$2"
@@ -104,9 +106,13 @@ fi
 eval BUILDROOT=$BUILDROOT
 SCRATCH_ROOT=$BUILDROOT/BUILDROOT
 
-TARGET_CONFIG=$(eval echo ~$SUDO_USER)/.fed-artik-build.conf
+if $USE_SPECIFIC_CONF; then
+	TARGET_CONFIG=$BUILDCONFIG
+else
+	TARGET_CONFIG=$(eval echo ~$SUDO_USER)/.fed-artik-build.conf
+	install -m 644 -o $user -g $user $BUILDCONFIG $TARGET_CONFIG
+fi
 
-install -m 644 -o $user -g $user $BUILDCONFIG $TARGET_CONFIG
 make_initial_directories $BUILDROOT $FEDORA_VER $BUILDARCH
 
 if [ "$IMPORT_ROOTFS" != "" ]; then
