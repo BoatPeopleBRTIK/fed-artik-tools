@@ -1,3 +1,10 @@
+fed-artik-tools (1.2.14) UNRELEASED; urgency=medium
+
+  * init: use sudo command to edit chroot file
+  * host-init: do not copy build conf if use specific conf
+
+ -- Chanho Park <chanho61.park@samsung.com>  Tue, 20 Dec 2016 05:11:09 +0900
+
 fed-artik-tools (1.2.13) UNRELEASED; urgency=medium
 
   * exclude update of artik specific packages
