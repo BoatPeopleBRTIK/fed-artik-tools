@@ -218,14 +218,14 @@ copy_output_file()
 		local output_name=${OUTPUT_FILE}.tar
 	fi
 
-	sudo sh -c "guestfish << _EOF_
-add $disk_file
-run
-mount /dev/sda1 /
-tar-out / $output_dir/$output_name
-_EOF_
-"
-	gzip -f $output_dir/$output_name
+	sudo sh -c "kpartx -a -v $disk_file"
+	LOOP_DEV=`sudo sh -c "kpartx -l $disk_file" | awk '{print $1}'`
+	sudo sh -c "mkdir -p $output_dir/loop_mnt"
+	sudo sh -c "mount /dev/mapper/$LOOP_DEV $output_dir/loop_mnt"
+	sudo sh -c "tar zcf $output_dir/${output_name}.gz -C $output_dir/loop_mnt ."
+	sudo sh -c "umount $output_dir/loop_mnt"
+	sudo sh -c "rm -rf $output_dir/loop_mnt"
+	sudo sh -c "kpartx -d $disk_file"
 
 	echo "Clean up chroot build directory..."
 	sudo sh -c "rm -rf $scratch_root/$chroot_output_dir"
