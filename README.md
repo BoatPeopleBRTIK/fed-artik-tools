@@ -17,18 +17,28 @@ technology.
 Ubuntu 64bit 14.04 or higher version
 ### Download fed-artik-tools package from release
 Go to release tab and download the latest release package
-### Package installation
+### Package installation from prebuilt binary
 ```
 sudo apt-get install build-essential qemu-user-static createrepo libguestfs-tools git sudo
-sudo dpkg -i fed-artik-tools_1.2.10_amd64.deb
+sudo dpkg -i fed-artik-tools_1.2.15_amd64.deb
+```
+### Build fed-artik-tools(Optional)
+```
+sudo apt-get install devscripts debhelper
+cd fed-artik-tools
+debuild -us -uc
+cd ..
+sudo apt-get install build-essential qemu-user-static createrepo libguestfs-tools git sudo
+sudo dpkg -i fed-artik-tools_1.2.15_amd64.deb
 ```
 
 ---
 ## 3. Preparation to build
 ### Initialize host environment
-+ Run fed-artik-host-init-buildsys with fedora arm tarball(ex: rootfs.tar.gz)
++ Run fed-artik-host-init-buildsys with fedora arm tarball(ex: fedora-arm-artik5-rootfs-0520GC0F-3AF-01Q6-20160928.203457-0e632fcf9ee1badf5724751af6bd0670.tar.gz)
+https://github.com/SamsungARTIK/fedora-spin-kickstarts/releases
 ```
-fed-artik-host-init-buildsys -I rootfs.tar.gz
+fed-artik-host-init-buildsys -I fedora-arm-artik5-rootfs-0520GC0F-3AF-01Q6-20160928.203457-0e632fcf9ee1badf5724751af6bd0670.tar.gz
 
 Host setting is done
 BUILDROOT -> /home/cometzero/FED_ARTIK_ROOT
@@ -141,7 +151,7 @@ usage: fed-artik-creator [options] kickstart
 --ks-file KS	Kickstart file
 --no-proxy list	No proxy
 ```
-To build a fedora rootfs,
+To build a fedora rootfs, please refer the build_fedora.sh of the build-artik.
 ```
 mkdir output
 fed-artik-creator -o ./output --copy-kickstart-dir ./spin-kickstarts --ks-file ./spin-kickstarts/fedora-arm-artik710.ks
